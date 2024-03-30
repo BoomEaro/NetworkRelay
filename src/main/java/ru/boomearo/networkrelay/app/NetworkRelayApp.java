@@ -13,6 +13,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.io.IoBuilder;
@@ -59,6 +60,9 @@ public class NetworkRelayApp {
     }
 
     public void load() {
+        System.setProperty("io.netty.selectorAutoRebuildThreshold", "0");
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+
         boolean epoll = false;
         if (Epoll.isAvailable()) {
             epoll = true;
