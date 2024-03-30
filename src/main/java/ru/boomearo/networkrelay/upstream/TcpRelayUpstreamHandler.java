@@ -87,6 +87,10 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (!ctx.channel().isActive()) {
+            return;
+        }
+
         ctx.close();
         this.logger.log(Level.SEVERE, "Exception on Upstream handler", cause);
     }
