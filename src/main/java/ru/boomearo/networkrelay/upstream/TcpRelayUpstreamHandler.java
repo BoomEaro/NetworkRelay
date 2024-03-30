@@ -18,7 +18,6 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger logger;
     private final ChannelFactory<? extends Channel> channelFactory;
-    private final EventLoopGroup eventLoopGroup;
     private final SocketAddress socketAddress;
     private final int timeout;
 
@@ -29,7 +28,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         this.logger.log(Level.INFO, "Opening Upstream " + ctx.channel().remoteAddress() + "...");
 
         this.downstreamChannel = new Bootstrap()
-                .group(this.eventLoopGroup)
+                .group(ctx.channel().eventLoop())
                 .channelFactory(this.channelFactory)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -41,7 +40,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     }
                 })
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)
-                .connect(this.socketAddress)
+                .remoteAddress(this.socketAddress)
+                .connect()
                 .addListener(future -> {
                     if (!future.isSuccess()) {
                         ctx.channel().close();
@@ -49,6 +49,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                         return;
                     }
                     ctx.channel().read();
+                    ctx.channel().config().setAutoRead(true);
 
                     this.logger.log(Level.INFO, "Opened Upstream " + ctx.channel().remoteAddress() + " -> " + this.downstreamChannel.remoteAddress());
                 })
@@ -72,17 +73,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        this.downstreamChannel
-                .writeAndFlush(msg)
-                .addListener(future -> {
-                    if (!future.isSuccess()) {
-                        ctx.channel().close();
-                        this.logger.log(Level.SEVERE, "Exception on packet write", future.cause());
-                        return;
-                    }
-
-                    ctx.channel().read();
-                });
+        this.downstreamChannel.writeAndFlush(msg, this.downstreamChannel.voidPromise());
     }
 
     @Override

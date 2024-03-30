@@ -102,7 +102,7 @@ public class NetworkRelayApp {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
-                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(logger, channelFactory, workerGroup, destinationAddress, timeout));
+                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(logger, channelFactory, destinationAddress, timeout));
                         }
                     })
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
