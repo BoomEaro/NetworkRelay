@@ -3,6 +3,7 @@ package ru.boomearo.networkrelay.upstream;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.RequiredArgsConstructor;
 import ru.boomearo.networkrelay.app.SimpleChannelInitializer;
@@ -36,6 +37,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                         SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                         ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                        ch.pipeline().addLast("fclh", new FlushConsolidationHandler(20));
                         ch.pipeline().addLast("downstream", new TcpRelayDownstreamHandler(logger, ctx.channel()));
                     }
                 })

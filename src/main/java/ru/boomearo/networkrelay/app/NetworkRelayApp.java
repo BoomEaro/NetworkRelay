@@ -11,6 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -102,6 +103,7 @@ public class NetworkRelayApp {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("fclh", new FlushConsolidationHandler(20));
                             ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(logger, channelFactory, destinationAddress, timeout));
                         }
                     })
