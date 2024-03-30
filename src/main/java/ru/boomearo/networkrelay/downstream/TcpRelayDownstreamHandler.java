@@ -17,13 +17,11 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.logger.log(Level.INFO, "Opened Downstream " + ctx.channel().remoteAddress() + " -> " + this.upstreamChannel.remoteAddress());
-        super.channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         this.logger.log(Level.INFO, "Closed Downstream " + ctx.channel().remoteAddress() + " -> " + this.upstreamChannel.remoteAddress());
-        super.channelInactive(ctx);
 
         this.upstreamChannel.close();
     }
