@@ -135,7 +135,7 @@ public class NetworkRelayApp {
     }
 
     private static EventLoopGroup newEventLoopGroup(boolean epoll, int threads, ThreadFactory threadFactory) {
-        return epoll ? new EpollEventLoopGroup(threads) : new NioEventLoopGroup(threads, threadFactory);
+        return epoll ? new EpollEventLoopGroup(threads, threadFactory) : new NioEventLoopGroup(threads, threadFactory);
     }
 
 }
