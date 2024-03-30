@@ -1,29 +1,39 @@
 package ru.boomearo.networkrelay.downstream;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ru.boomearo.networkrelay.app.ChannelWrapper;
+import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor
+@Getter
 public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger logger;
-    private final Channel upstreamChannel;
+    private final ChannelWrapper upstreamChannel;
+
+    private ChannelWrapper currentChannel;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "TCP: Opened Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress());
+        this.currentChannel = new ChannelWrapper(ctx.channel());
+
+        this.logger.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "TCP: Closed Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress());
+        this.currentChannel.setClosed(true);
 
+        // Close upstream now
         this.upstreamChannel.close();
+
+        this.logger.log(Level.INFO, "TCP: Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -32,17 +42,17 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        this.upstreamChannel.writeAndFlush(msg, this.upstreamChannel.voidPromise());
+        this.upstreamChannel.writeAndFlushVoidPromise(msg);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (!ctx.channel().isActive()) {
+        if (!this.currentChannel.isActive()) {
             return;
         }
 
-        ctx.close();
-        this.logger.log(Level.SEVERE, "TCP: Exception on Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress(), cause);
+        this.currentChannel.close();
+        ExceptionUtils.formatExceptionLogger(this.logger, "TCP: Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
     }
 
 }
