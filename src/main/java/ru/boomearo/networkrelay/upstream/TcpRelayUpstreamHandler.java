@@ -36,8 +36,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
-                        ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("fclh", new FlushConsolidationHandler(20));
+                        ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("downstream", new TcpRelayDownstreamHandler(logger, ctx.channel()));
                     }
                 })
