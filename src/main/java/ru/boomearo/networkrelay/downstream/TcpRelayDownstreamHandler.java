@@ -30,6 +30,10 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (!this.upstreamChannel.isActive()) {
+            return;
+        }
+
         this.upstreamChannel.writeAndFlush(msg, this.upstreamChannel.voidPromise());
     }
 
