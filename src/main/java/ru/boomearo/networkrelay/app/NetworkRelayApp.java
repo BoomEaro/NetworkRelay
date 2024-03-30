@@ -88,15 +88,6 @@ public class NetworkRelayApp {
             InetSocketAddress destinationAddress = serverConfiguration.getDestination();
             int timeout = serverConfiguration.getTimeout();
 
-            ChannelFutureListener listener = future -> {
-                if (!future.isSuccess()) {
-                    this.logger.log(Level.SEVERE, "TCP: Could not bind to host " + sourceAddress, future.channel());
-                    return;
-                }
-
-                this.logger.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
-            };
-
             new ServerBootstrap()
                     .group(this.bossGroup, this.workerGroup)
                     .option(ChannelOption.SO_REUSEADDR, true)
@@ -115,7 +106,14 @@ public class NetworkRelayApp {
                     .childOption(ChannelOption.AUTO_READ, false)
                     .localAddress(sourceAddress)
                     .bind()
-                    .addListener(listener);
+                    .addListener((ChannelFutureListener) future -> {
+                        if (!future.isSuccess()) {
+                            this.logger.log(Level.SEVERE, "TCP: Could not bind to host " + sourceAddress, future.channel());
+                            return;
+                        }
+
+                        this.logger.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
+                    });
         }
 
         new NetworkRelayConsole(this).start();

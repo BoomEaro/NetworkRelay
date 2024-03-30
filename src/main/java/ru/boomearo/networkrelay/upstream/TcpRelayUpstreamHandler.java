@@ -44,7 +44,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)
                 .remoteAddress(this.inetSocketAddress)
                 .connect()
-                .addListener(future -> {
+                .addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         ctx.channel().close();
                         this.logger.log(Level.SEVERE, "TCP: Failed to open Downstream", future.cause());
