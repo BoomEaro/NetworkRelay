@@ -85,11 +85,11 @@ public class NetworkRelayApp {
 
             ChannelFutureListener listener = future -> {
                 if (!future.isSuccess()) {
-                    this.logger.log(Level.SEVERE, "Could not bind to host " + sourceAddress, future.channel());
+                    this.logger.log(Level.SEVERE, "TCP: Could not bind to host " + sourceAddress, future.channel());
                     return;
                 }
 
-                this.logger.log(Level.INFO, "Listening on " + sourceAddress + "...");
+                this.logger.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
             };
 
             new ServerBootstrap()

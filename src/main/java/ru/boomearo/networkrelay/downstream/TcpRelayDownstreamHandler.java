@@ -16,12 +16,12 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "Opened Downstream " + ctx.channel().remoteAddress() + " -> " + this.upstreamChannel.remoteAddress());
+        this.logger.log(Level.INFO, "TCP: Opened Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "Closed Downstream " + ctx.channel().remoteAddress() + " -> " + this.upstreamChannel.remoteAddress());
+        this.logger.log(Level.INFO, "TCP: Closed Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress());
 
         this.upstreamChannel.close();
     }
@@ -42,7 +42,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         ctx.close();
-        this.logger.log(Level.SEVERE, "Exception on Downstream handler", cause);
+        this.logger.log(Level.SEVERE, "TCP: Exception on Downstream " + ctx.channel().remoteAddress() + " <- " + this.upstreamChannel.remoteAddress(), cause);
     }
 
 }

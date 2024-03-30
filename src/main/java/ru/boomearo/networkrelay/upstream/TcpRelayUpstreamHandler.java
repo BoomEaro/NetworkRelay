@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import ru.boomearo.networkrelay.app.SimpleChannelInitializer;
 import ru.boomearo.networkrelay.downstream.TcpRelayDownstreamHandler;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,14 +18,14 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     private final Logger logger;
     private final ChannelFactory<? extends Channel> channelFactory;
-    private final SocketAddress socketAddress;
+    private final InetSocketAddress inetSocketAddress;
     private final int timeout;
 
     private Channel downstreamChannel;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "Opening Upstream " + ctx.channel().remoteAddress() + "...");
+        this.logger.log(Level.INFO, "TCP: Opening Downstream for Upstream " + ctx.channel().remoteAddress() + " -> " + this.inetSocketAddress + "...");
 
         this.downstreamChannel = new Bootstrap()
                 .group(ctx.channel().eventLoop())
@@ -40,25 +40,23 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     }
                 })
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)
-                .remoteAddress(this.socketAddress)
+                .remoteAddress(this.inetSocketAddress)
                 .connect()
                 .addListener(future -> {
                     if (!future.isSuccess()) {
                         ctx.channel().close();
-                        this.logger.log(Level.SEVERE, "Failed to open Upstream", future.cause());
+                        this.logger.log(Level.SEVERE, "TCP: Failed to open Downstream", future.cause());
                         return;
                     }
                     ctx.channel().read();
                     ctx.channel().config().setAutoRead(true);
-
-                    this.logger.log(Level.INFO, "Opened Upstream " + ctx.channel().remoteAddress() + " -> " + this.downstreamChannel.remoteAddress());
                 })
                 .channel();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        this.logger.log(Level.INFO, "Closed Upstream " + ctx.channel().remoteAddress() + " -> " + this.downstreamChannel.remoteAddress());
+        this.logger.log(Level.INFO, "TCP: Closed Upstream " + ctx.channel().remoteAddress() + " -> " + this.downstreamChannel.remoteAddress());
 
         this.downstreamChannel.close();
     }
@@ -79,7 +77,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         ctx.close();
-        this.logger.log(Level.SEVERE, "Exception on Upstream handler", cause);
+        this.logger.log(Level.SEVERE, "TCP: Exception on Upstream " + ctx.channel().remoteAddress() + " -> " + this.downstreamChannel.remoteAddress(), cause);
     }
 
 }
