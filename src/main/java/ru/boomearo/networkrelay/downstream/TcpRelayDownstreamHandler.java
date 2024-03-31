@@ -23,6 +23,10 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
+        // Read data from upstream and make it auto read
+        this.upstreamChannel.read();
+        this.upstreamChannel.setAutoRead(true);
+
         this.logger.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 

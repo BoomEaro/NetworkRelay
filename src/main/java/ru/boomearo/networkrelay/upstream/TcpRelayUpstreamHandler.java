@@ -55,10 +55,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     if (!future.isSuccess()) {
                         this.currentChannel.close();
                         ExceptionUtils.formatExceptionLogger(this.logger, "TCP: Failed to open Downstream " + this.socketAddressDestination, future.cause());
-                        return;
                     }
-                    ctx.channel().read();
-                    ctx.channel().config().setAutoRead(true);
                 });
 
     }
@@ -84,6 +81,10 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         ChannelWrapper downstreamChannel = this.tcpRelayDownstreamHandler.getCurrentChannel();
+        if (downstreamChannel == null) {
+            return;
+        }
+
         if (!downstreamChannel.isActive()) {
             return;
         }
