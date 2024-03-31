@@ -21,7 +21,8 @@ import ru.boomearo.networkrelay.configuration.ConfigurationProvider;
 import ru.boomearo.networkrelay.configuration.config.Configuration;
 import ru.boomearo.networkrelay.configuration.config.ServerConfiguration;
 import ru.boomearo.networkrelay.logger.Log4JLogHandler;
-import ru.boomearo.networkrelay.upstream.TcpRelayUpstreamHandler;
+import ru.boomearo.networkrelay.netty.SimpleChannelInitializer;
+import ru.boomearo.networkrelay.netty.TcpRelayUpstreamHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;

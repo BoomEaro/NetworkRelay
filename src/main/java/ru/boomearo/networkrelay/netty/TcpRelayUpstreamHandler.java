@@ -1,4 +1,4 @@
-package ru.boomearo.networkrelay.upstream;
+package ru.boomearo.networkrelay.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -6,9 +6,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.RequiredArgsConstructor;
-import ru.boomearo.networkrelay.app.ChannelWrapper;
-import ru.boomearo.networkrelay.app.SimpleChannelInitializer;
-import ru.boomearo.networkrelay.downstream.TcpRelayDownstreamHandler;
 import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.net.SocketAddress;

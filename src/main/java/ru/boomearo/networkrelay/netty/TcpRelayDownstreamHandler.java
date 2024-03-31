@@ -1,10 +1,10 @@
-package ru.boomearo.networkrelay.downstream;
+package ru.boomearo.networkrelay.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.boomearo.networkrelay.app.ChannelWrapper;
+import ru.boomearo.networkrelay.netty.ChannelWrapper;
 import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.util.logging.Level;

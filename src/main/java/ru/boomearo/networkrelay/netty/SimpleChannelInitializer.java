@@ -1,4 +1,4 @@
-package ru.boomearo.networkrelay.app;
+package ru.boomearo.networkrelay.netty;
 
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
