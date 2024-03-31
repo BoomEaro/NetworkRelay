@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.boomearo.networkrelay.netty.ChannelWrapper;
 import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.util.logging.Level;
@@ -23,8 +22,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        // Read data from upstream and make it auto read
-        this.upstreamChannel.read();
+        // Read all pending data from upstream and forward it to downstream
         this.upstreamChannel.setAutoRead(true);
 
         this.logger.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());

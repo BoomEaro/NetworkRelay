@@ -74,14 +74,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (this.tcpRelayDownstreamHandler == null) {
-            return;
-        }
         ChannelWrapper downstreamChannel = this.tcpRelayDownstreamHandler.getCurrentChannel();
-        if (downstreamChannel == null) {
-            return;
-        }
-
         if (!downstreamChannel.isActive()) {
             return;
         }
