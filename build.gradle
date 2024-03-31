@@ -15,6 +15,7 @@ allprojects {
     jar {
         manifest {
             attributes "Main-Class": "ru.boomearo.networkrelay.NetworkRelayBootstrap"
+            attributes "Multi-Release": "true"
         }
     }
 
