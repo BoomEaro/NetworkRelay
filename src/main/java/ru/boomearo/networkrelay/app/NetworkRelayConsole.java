@@ -27,7 +27,7 @@ public class NetworkRelayConsole extends SimpleTerminalConsole {
 
     @Override
     protected void runCommand(String s) {
-        ConsoleSender consoleSender = new ConsoleSender(this.networkRelayApp.getLogger());
+        ConsoleSender consoleSender = new ConsoleSender();
         String[] args = s.split(" ");
         this.commandNode.execute(consoleSender, args);
     }

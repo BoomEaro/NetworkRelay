@@ -15,12 +15,14 @@ import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 import ru.boomearo.networkrelay.configuration.ConfigurationProvider;
 import ru.boomearo.networkrelay.configuration.config.Configuration;
 import ru.boomearo.networkrelay.configuration.config.ServerConfiguration;
-import ru.boomearo.networkrelay.logger.Log4JLogHandler;
 import ru.boomearo.networkrelay.netty.SimpleChannelInitializer;
 import ru.boomearo.networkrelay.netty.TcpRelayUpstreamHandler;
 
@@ -28,14 +30,10 @@ import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Getter
+@Log4j2
 public class NetworkRelayApp {
-
-    private final Logger logger;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -43,21 +41,9 @@ public class NetworkRelayApp {
     private ConfigurationProvider<Configuration> configurationProvider;
 
     public NetworkRelayApp() {
-        org.apache.logging.log4j.Logger redirect = LogManager.getRootLogger();
-        System.setOut(IoBuilder.forLogger(redirect).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintStream());
-        System.setErr(IoBuilder.forLogger(redirect).setLevel(org.apache.logging.log4j.Level.ERROR).buildPrintStream());
-
-        Logger root = Logger.getLogger("");
-        root.setUseParentHandlers(false);
-
-        for (Handler handler : root.getHandlers()) {
-            root.removeHandler(handler);
-        }
-
-        root.setLevel(java.util.logging.Level.ALL);
-        root.addHandler(new Log4JLogHandler());
-
-        this.logger = Logger.getLogger("NetworkRelay");
+        Logger redirect = LogManager.getRootLogger();
+        System.setOut(IoBuilder.forLogger(redirect).setLevel(Level.INFO).buildPrintStream());
+        System.setErr(IoBuilder.forLogger(redirect).setLevel(Level.ERROR).buildPrintStream());
     }
 
     public void load() {
@@ -67,9 +53,9 @@ public class NetworkRelayApp {
         boolean epoll = false;
         if (Epoll.isAvailable()) {
             epoll = true;
-            this.logger.log(Level.INFO, "Epoll is working, utilising it!");
+            log.log(Level.INFO, "Epoll is working, utilising it!");
         } else {
-            this.logger.log(Level.WARNING, "Epoll is not working, falling back to NIO");
+            log.log(Level.WARN, "Epoll is not working, falling back to NIO");
         }
 
         ChannelFactory<? extends Channel> channelFactory = epoll ? EpollSocketChannel::new : NioSocketChannel::new;
@@ -100,7 +86,7 @@ public class NetworkRelayApp {
 
                             ch.pipeline().addLast("fclh", new FlushConsolidationHandler(20));
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
-                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(logger, channelFactory, destinationAddress, timeout));
+                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(channelFactory, destinationAddress, timeout));
                         }
                     })
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
@@ -109,11 +95,11 @@ public class NetworkRelayApp {
                     .bind()
                     .addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
-                            this.logger.log(Level.SEVERE, "TCP: Could not bind to host " + sourceAddress, future.channel());
+                            log.log(Level.ERROR, "TCP: Could not bind to host " + sourceAddress, future.channel());
                             return;
                         }
 
-                        this.logger.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
+                        log.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
                     });
         }
 

@@ -6,17 +6,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @RequiredArgsConstructor
+@Log4j2
 public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
-    private final Logger logger;
     private final ChannelFactory<? extends Channel> channelFactory;
     private final SocketAddress socketAddressDestination;
     private final int timeout;
@@ -28,9 +28,9 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        this.logger.log(Level.INFO, "TCP: Opening Downstream for Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination + "...");
+        log.log(Level.INFO, "TCP: Opening Downstream for Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination + "...");
 
-        this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.logger, this.currentChannel);
+        this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.currentChannel);
 
         new Bootstrap()
                 .group(ctx.channel().eventLoop())
@@ -51,7 +51,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                 .addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         this.currentChannel.close();
-                        ExceptionUtils.formatExceptionLogger(this.logger, "TCP: Failed to open Downstream " + this.socketAddressDestination, future.cause());
+                        ExceptionUtils.formatException("TCP: Failed to open Downstream " + this.socketAddressDestination, future.cause());
                     }
                 });
 
@@ -69,7 +69,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-        this.logger.log(Level.INFO, "TCP: Closed Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination);
+        log.log(Level.INFO, "TCP: Closed Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         this.currentChannel.close();
 
-        ExceptionUtils.formatExceptionLogger(this.logger, "TCP: Exception on Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination, cause);
+        ExceptionUtils.formatException("TCP: Exception on Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination, cause);
     }
 
 }

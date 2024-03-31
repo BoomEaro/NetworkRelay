@@ -4,16 +4,15 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import ru.boomearo.networkrelay.utils.ExceptionUtils;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @RequiredArgsConstructor
 @Getter
+@Log4j2
 public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
-    private final Logger logger;
     private final ChannelWrapper upstreamChannel;
 
     private ChannelWrapper currentChannel;
@@ -25,7 +24,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         // Read all pending data from upstream and forward it to downstream
         this.upstreamChannel.setAutoRead(true);
 
-        this.logger.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -35,7 +34,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         // Close upstream now
         this.upstreamChannel.close();
 
-        this.logger.log(Level.INFO, "TCP: Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.log(Level.INFO, "TCP: Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -54,7 +53,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         this.currentChannel.close();
-        ExceptionUtils.formatExceptionLogger(this.logger, "TCP: Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
+        ExceptionUtils.formatException("TCP: Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
     }
 
 }
