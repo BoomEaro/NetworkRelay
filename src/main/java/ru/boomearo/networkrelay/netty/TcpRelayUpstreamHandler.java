@@ -28,7 +28,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        log.log(Level.INFO, "TCP: Opening Downstream for Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination + "...");
+        log.log(Level.INFO, "Opening Downstream for Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination + "...");
 
         this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.currentChannel);
 
@@ -51,7 +51,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                 .addListener((ChannelFutureListener) future -> {
                     if (!future.isSuccess()) {
                         this.currentChannel.close();
-                        ExceptionUtils.formatException("TCP: Failed to open Downstream " + this.socketAddressDestination, future.cause());
+                        ExceptionUtils.formatException(log, "Failed to open Downstream " + this.socketAddressDestination, future.cause());
                     }
                 });
 
@@ -69,7 +69,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
-        log.log(Level.INFO, "TCP: Closed Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination);
+        log.log(Level.INFO, "Closed Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         this.currentChannel.close();
 
-        ExceptionUtils.formatException("TCP: Exception on Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination, cause);
+        ExceptionUtils.formatException(log, "Exception on Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination, cause);
     }
 
 }

@@ -24,7 +24,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         // Read all pending data from upstream and forward it to downstream
         this.upstreamChannel.setAutoRead(true);
 
-        log.log(Level.INFO, "TCP: Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.log(Level.INFO, "Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -34,7 +34,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         // Close upstream now
         this.upstreamChannel.close();
 
-        log.log(Level.INFO, "TCP: Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.log(Level.INFO, "Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         this.currentChannel.close();
-        ExceptionUtils.formatException("TCP: Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
+        ExceptionUtils.formatException(log, "Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
     }
 
 }

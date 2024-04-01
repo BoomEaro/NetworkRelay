@@ -16,4 +16,8 @@ public class Configuration {
             new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 15000)
     );
 
+    private List<ServerConfiguration> udpServers = Arrays.asList(
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 15000),
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 15000)
+    );
 }
