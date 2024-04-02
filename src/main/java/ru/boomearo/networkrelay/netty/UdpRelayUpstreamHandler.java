@@ -8,7 +8,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import ru.boomearo.networkrelay.utils.ExceptionUtils;
+import org.apache.logging.log4j.Level;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
                     .addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
                             future.channel().close();
-                            ExceptionUtils.formatException(log, "Failed to open Downstream " + this.socketAddressDestination, future.cause());
+                            log.log(Level.ERROR, "Failed to open Downstream " + this.socketAddressDestination, future.cause());
                         }
                     });
             this.downstreamHandlers.put(senderAddress, newUdpRelayDownstreamHandler);
@@ -77,7 +77,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ExceptionUtils.formatException(log, "Exception on Upstream handler ", cause);
+        log.log(Level.ERROR, "Exception on Upstream handler", cause);
     }
 
 }

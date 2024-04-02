@@ -7,11 +7,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
-import ru.boomearo.networkrelay.utils.ExceptionUtils;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
@@ -29,7 +29,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        sendQueuedPackets();
+        handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
 
         log.log(Level.INFO, "Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.socketAddressSource);
     }
@@ -52,7 +52,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         this.currentChannel.close();
 
-        ExceptionUtils.formatException(log, "Exception on Downstream handler ", cause);
+        log.log(Level.ERROR, "Exception on Downstream handler", cause);
     }
 
     public void writePacket(DatagramPacket msg) {
@@ -64,10 +64,10 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
         this.currentChannel.writeAndFlushVoidPromise(msg);
     }
 
-    private void sendQueuedPackets() {
-        Object packet;
+    public void handleQueuedPackets(Consumer<DatagramPacket> consumer) {
+        DatagramPacket packet;
         while ((packet = this.packetQueue.poll()) != null) {
-            this.currentChannel.writeAndFlushVoidPromise(packet);
+            consumer.accept(packet);
         }
     }
 }

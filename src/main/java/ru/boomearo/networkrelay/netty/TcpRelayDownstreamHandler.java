@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
-import ru.boomearo.networkrelay.utils.ExceptionUtils;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
@@ -15,14 +18,15 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     private final ChannelWrapper upstreamChannel;
 
+    private final Queue<Object> packetQueue = new LinkedList<>();
+
     private ChannelWrapper currentChannel;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        // Read all pending data from upstream and forward it to downstream
-        this.upstreamChannel.setAutoRead(true);
+        handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
 
         log.log(Level.INFO, "Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
     }
@@ -39,10 +43,6 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!this.upstreamChannel.isActive()) {
-            return;
-        }
-
         this.upstreamChannel.writeAndFlushVoidPromise(msg);
     }
 
@@ -53,7 +53,22 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         this.currentChannel.close();
-        ExceptionUtils.formatException(log, "Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
+        log.log(Level.ERROR, "Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
     }
 
+    public void writePacket(Object msg) {
+        if (this.currentChannel == null) {
+            this.packetQueue.add(msg);
+            return;
+        }
+
+        this.currentChannel.writeAndFlushVoidPromise(msg);
+    }
+
+    public void handleQueuedPackets(Consumer<Object> consumer) {
+        Object packet;
+        while ((packet = this.packetQueue.poll()) != null) {
+            consumer.accept(packet);
+        }
+    }
 }

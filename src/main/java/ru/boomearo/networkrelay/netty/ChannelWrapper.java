@@ -70,21 +70,4 @@ public class ChannelWrapper {
 
         this.channel.close();
     }
-
-    public void setAutoRead(boolean autoRead) {
-        if (this.closed) {
-            return;
-        }
-
-        this.channel.config().setAutoRead(autoRead);
-    }
-
-    public void read() {
-        if (this.closed) {
-            return;
-        }
-
-        this.channel.read();
-    }
-
 }
