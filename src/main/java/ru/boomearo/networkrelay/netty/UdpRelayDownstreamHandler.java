@@ -52,7 +52,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         this.currentChannel.close();
 
-        log.log(Level.ERROR, "Exception on Downstream handler", cause);
+        log.log(Level.ERROR, "Exception on Downstream handler " + this.currentChannel.getRemoteAddress() + " <- " + this.socketAddressSource, cause);
     }
 
     public void writePacket(DatagramPacket msg) {
