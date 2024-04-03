@@ -1,5 +1,5 @@
 ### NetworkRelay
-This is a very simple proxy server written in java using the netty as high performance network library.
+This is a very simple proxy server written in java using netty as high performance network library.
 
 The operating principle is very simple, it is actually a relay or port forwarding that allows you to send and receive traffic from another host.
 
