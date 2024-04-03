@@ -54,6 +54,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
                         protected void initChannel(DatagramChannel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
+                            ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                             ch.pipeline().addLast("downstream", newUdpRelayDownstreamHandler);
                         }

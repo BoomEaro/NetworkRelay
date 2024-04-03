@@ -1,4 +1,7 @@
-package ru.boomearo.networkrelay.commands;
+package ru.boomearo.networkrelay.commands.app;
+
+import ru.boomearo.networkrelay.commands.CommandNodeApp;
+import ru.boomearo.networkrelay.commands.ConsoleSender;
 
 import java.util.List;
 

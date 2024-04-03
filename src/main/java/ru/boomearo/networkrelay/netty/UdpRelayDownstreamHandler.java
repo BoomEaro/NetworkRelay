@@ -11,12 +11,15 @@ import org.apache.logging.log4j.Level;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
 @Log4j2
 public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<DatagramPacket> {
+
+    public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
 
     private final UdpRelayUpstreamHandler udpRelayUpstreamHandler;
     private final InetSocketAddress socketAddressSource;
@@ -27,6 +30,8 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.increment();
+
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
         handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
@@ -36,6 +41,8 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.decrement();
+
         this.currentChannel.setClosed(true);
 
         this.udpRelayUpstreamHandler.getDownstreamHandlers().remove(this.socketAddressSource);

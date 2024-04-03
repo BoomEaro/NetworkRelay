@@ -24,6 +24,7 @@ import ru.boomearo.networkrelay.configuration.ConfigurationProvider;
 import ru.boomearo.networkrelay.configuration.config.Configuration;
 import ru.boomearo.networkrelay.configuration.config.ServerConfiguration;
 import ru.boomearo.networkrelay.netty.SimpleChannelInitializer;
+import ru.boomearo.networkrelay.netty.StatisticsUpstreamHandler;
 import ru.boomearo.networkrelay.netty.TcpRelayUpstreamHandler;
 import ru.boomearo.networkrelay.netty.UdpRelayUpstreamHandler;
 
@@ -89,6 +90,7 @@ public class NetworkRelayApp {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
+                            ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
                             ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                             ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(tcpChannelFactory, destinationAddress, timeout));
@@ -120,6 +122,7 @@ public class NetworkRelayApp {
                         public void initChannel(DatagramChannel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
+                            ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
                             ch.pipeline().addLast("relay", new UdpRelayUpstreamHandler(destinationAddress, udpChannelFactory, timeout));
                         }
                     })

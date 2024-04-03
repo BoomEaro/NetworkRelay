@@ -1,9 +1,11 @@
 package ru.boomearo.networkrelay.app;
 
 import net.minecrell.terminalconsole.SimpleTerminalConsole;
-import ru.boomearo.networkrelay.commands.CommandMain;
+import ru.boomearo.networkrelay.commands.app.CommandConn;
+import ru.boomearo.networkrelay.commands.app.CommandCpu;
+import ru.boomearo.networkrelay.commands.app.CommandMain;
 import ru.boomearo.networkrelay.commands.CommandNodeApp;
-import ru.boomearo.networkrelay.commands.CommandStop;
+import ru.boomearo.networkrelay.commands.app.CommandStop;
 import ru.boomearo.networkrelay.commands.ConsoleSender;
 
 public class NetworkRelayConsole extends SimpleTerminalConsole {
@@ -16,6 +18,8 @@ public class NetworkRelayConsole extends SimpleTerminalConsole {
 
         CommandMain root = new CommandMain();
         root.addNode(new CommandStop(root, networkRelayApp));
+        root.addNode(new CommandConn(root));
+        root.addNode(new CommandCpu(root));
 
         this.commandNode = root;
     }

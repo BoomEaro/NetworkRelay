@@ -9,12 +9,15 @@ import org.apache.logging.log4j.Level;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
 @Log4j2
 public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
+
+    public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
 
     private final ChannelWrapper upstreamChannel;
 
@@ -24,6 +27,8 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.increment();
+
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
         handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
@@ -33,6 +38,8 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.decrement();
+
         this.currentChannel.setClosed(true);
 
         // Close upstream now

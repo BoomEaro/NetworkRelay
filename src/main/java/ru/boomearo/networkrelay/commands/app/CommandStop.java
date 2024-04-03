@@ -1,6 +1,8 @@
-package ru.boomearo.networkrelay.commands;
+package ru.boomearo.networkrelay.commands.app;
 
 import ru.boomearo.networkrelay.app.NetworkRelayApp;
+import ru.boomearo.networkrelay.commands.CommandNodeApp;
+import ru.boomearo.networkrelay.commands.ConsoleSender;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class CommandStop extends CommandNodeApp {
 
     @Override
     public List<String> getDescription(ConsoleSender consoleSender) {
-        return List.of("stop - stop application");
+        return List.of("stop - stop the application");
     }
 
     @Override

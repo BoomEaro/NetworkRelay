@@ -12,10 +12,13 @@ import org.apache.logging.log4j.Level;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 
 @RequiredArgsConstructor
 @Log4j2
 public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
+
+    public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
 
     private final ChannelFactory<? extends Channel> channelFactory;
     private final SocketAddress socketAddressDestination;
@@ -26,6 +29,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.increment();
+
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
         this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.currentChannel);
@@ -40,6 +45,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
+                        ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
                         ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                         ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("downstream", tcpRelayDownstreamHandler);
@@ -52,6 +58,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        OPENED_CONNECTIONS.decrement();
+
         this.currentChannel.setClosed(true);
 
         // Close downstream now
