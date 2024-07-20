@@ -59,8 +59,13 @@ allprojects {
         implementation "org.spongepowered:configurate-yaml:${spongeConfig}"
         implementation "net.minecrell:terminalconsoleappender:${consoleAppender}"
         implementation "org.jline:jline-terminal-jansi:${jlineTerminal}"
-        implementation("com.google.guava:guava:${guavaVersion}")
-        implementation "it.unimi.dsi:dsiutils:${dsiUtils}"
+        implementation "com.google.guava:guava:${guavaVersion}"
+        implementation("it.unimi.dsi:dsiutils:${dsiUtils}") {
+            exclude group: "ch.qos.logback"
+            exclude group: "it.unimi.di"
+            exclude group: "org.slf4j"
+            exclude group: "org.apache.commons"
+        }
 
         compileOnly "org.projectlombok:lombok:${lombokVersion}"
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
