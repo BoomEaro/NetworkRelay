@@ -1,15 +1,20 @@
 package ru.boomearo.networkrelay.commands;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import lombok.Getter;
+
 import java.util.*;
 
+@Getter
 public abstract class CommandNode<T, D> {
 
     protected final CommandNode<T, D> rootNode;
     protected final String name;
     protected final List<String> aliases;
 
-    protected final Map<String, CommandNode<T, D>> nodes = new LinkedHashMap<>();
-    protected final Map<String, CommandNode<T, D>> withAliasesNodes = new LinkedHashMap<>();
+    protected final Map<String, CommandNode<T, D>> nodes = new Object2ObjectLinkedOpenHashMap<>();
+    protected final Map<String, CommandNode<T, D>> withAliasesNodes = new Object2ObjectLinkedOpenHashMap<>();
 
     public CommandNode(CommandNode<T, D> rootNode, String name) {
         this(rootNode, name, Collections.emptyList());
@@ -19,26 +24,6 @@ public abstract class CommandNode<T, D> {
         this.rootNode = rootNode;
         this.name = name;
         this.aliases = aliases;
-    }
-
-    public CommandNode<T, D> getRootNode() {
-        return this.rootNode;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public List<String> getAliases() {
-        return this.aliases;
-    }
-
-    public Map<String, CommandNode<T, D>> getNodes() {
-        return this.nodes;
-    }
-
-    public Map<String, CommandNode<T, D>> getWithAliasesNodes() {
-        return this.withAliasesNodes;
     }
 
     public void execute(T sender, String[] args) {
@@ -64,8 +49,7 @@ public abstract class CommandNode<T, D> {
     public void onExecuteSafe(T sender, String[] args) {
         try {
             onExecute(sender, args);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             onExecuteException(sender, args, e);
         }
     }
@@ -90,8 +74,7 @@ public abstract class CommandNode<T, D> {
     public Collection<String> onSuggestSafe(T sender, String[] args) {
         try {
             return onSuggest(sender, args);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return onSuggestException(sender, args, e);
         }
     }
@@ -135,7 +118,7 @@ public abstract class CommandNode<T, D> {
         if (args.length != 1) {
             return Collections.emptyList();
         }
-        Set<String> matches = new HashSet<>();
+        Set<String> matches = new ObjectOpenHashSet<>();
         String search = args[0].toLowerCase();
         for (Map.Entry<String, CommandNode<T, D>> entry : this.withAliasesNodes.entrySet()) {
             if (entry.getValue().hasPermission(sender)) {

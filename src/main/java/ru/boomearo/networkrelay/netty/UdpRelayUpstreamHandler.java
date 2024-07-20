@@ -5,13 +5,13 @@ import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +24,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
     private final ChannelFactory<? extends DatagramChannel> channelFactory;
     private final int timeout;
 
-    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new HashMap<>();
+    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new Object2ObjectOpenHashMap<>();
 
     private ChannelWrapper currentChannel;
 
