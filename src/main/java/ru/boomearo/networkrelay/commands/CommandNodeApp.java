@@ -37,10 +37,10 @@ public abstract class CommandNodeApp extends CommandNode<ConsoleSender, String> 
     }
 
     public void sendCurrentHelp(ConsoleSender sender) {
-        List<String> descs = getDescription(sender);
-        if (descs != null) {
+        List<String> description = getDescription(sender);
+        if (description != null) {
             sender.sendMessage(SEP);
-            for (String text : descs) {
+            for (String text : description) {
                 sender.sendMessage(text);
             }
             sender.sendMessage(SEP);

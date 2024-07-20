@@ -11,8 +11,8 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import ru.boomearo.networkrelay.configuration.serializers.SocketAddressSerializer;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -20,7 +20,7 @@ public class ConfigurationProvider<T> {
 
     private final Class<T> clazz;
     private final Path file;
-    private Collection<ConfigurateSerializer<?>> serializers = Arrays.asList(
+    private Collection<ConfigurateSerializer<?>> serializers = List.of(
             new SocketAddressSerializer()
     );
 
