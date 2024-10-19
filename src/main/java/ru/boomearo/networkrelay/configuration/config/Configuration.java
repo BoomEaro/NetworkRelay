@@ -12,12 +12,12 @@ import java.util.List;
 public class Configuration {
 
     private List<ServerConfiguration> tcpServers = Arrays.asList(
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 15000),
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 15000)
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 30000),
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 30000)
     );
 
     private List<ServerConfiguration> udpServers = Arrays.asList(
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 15000),
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 15000)
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 30000),
+            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 30000)
     );
 }
