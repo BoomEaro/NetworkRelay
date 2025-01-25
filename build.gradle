@@ -30,6 +30,8 @@ allprojects {
         archiveClassifier.set("")
         archiveVersion.set("")
         transform(Log4j2PluginsCacheFileTransformer)
+
+        mergeServiceFiles()
     }
 
     java {
@@ -43,24 +45,31 @@ allprojects {
 
     ext {
         lombokVersion = "1.18.34"
-        nettyVersion = "4.1.114.Final"
+        nettyVersion = "4.1.117.Final"
         spongeConfig = "4.1.2"
-        jlineTerminal = "3.26.1"
+        jlineTerminal = "3.21.0"
         consoleAppender = "1.3.0"
         log4jVersion = "2.23.1"
         guavaVersion = "33.2.1-jre"
         dsiUtils = "2.7.3"
+        disruptor = "3.4.4"
+        slf4j = "1.7.36"
     }
 
     dependencies {
         implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
         implementation "org.apache.logging.log4j:log4j-iostreams:${log4jVersion}"
+        implementation "org.apache.logging.log4j:log4j-jul:${log4jVersion}"
+        implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}"
+        implementation "org.slf4j:slf4j-api:${slf4j}"
+        implementation "org.slf4j:slf4j-jdk14:${slf4j}"
+        implementation "net.minecrell:terminalconsoleappender:${consoleAppender}"
+        implementation "org.jline:jline-terminal-jansi:${jlineTerminal}"
+        implementation "com.lmax:disruptor:${disruptor}"
         implementation "io.netty:netty-transport-native-epoll:${nettyVersion}:linux-x86_64"
         implementation "io.netty:netty-transport-native-epoll:${nettyVersion}:linux-aarch_64"
         implementation "io.netty:netty-handler:${nettyVersion}"
         implementation "org.spongepowered:configurate-yaml:${spongeConfig}"
-        implementation "net.minecrell:terminalconsoleappender:${consoleAppender}"
-        implementation "org.jline:jline-terminal-jansi:${jlineTerminal}"
         implementation "com.google.guava:guava:${guavaVersion}"
         implementation("it.unimi.dsi:dsiutils:${dsiUtils}") {
             exclude group: "ch.qos.logback"

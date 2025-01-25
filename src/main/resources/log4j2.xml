@@ -4,7 +4,7 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%t] [%logger{36}]: %msg%n%xEx}"/>
         </Console>
-        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="true">
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="false">
             <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%t] [%logger{36}]: %msg%n%xEx}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />

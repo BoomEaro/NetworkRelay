@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Paths;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
 
 @Getter
 @Log4j2
@@ -47,6 +48,16 @@ public class NetworkRelayApp {
         Logger redirect = LogManager.getRootLogger();
         System.setOut(IoBuilder.forLogger(redirect).setLevel(Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(redirect).setLevel(Level.ERROR).buildPrintStream());
+
+        java.util.logging.Logger root = java.util.logging.Logger.getLogger("");
+        root.setUseParentHandlers(false);
+
+        for (Handler handler : root.getHandlers()) {
+            root.removeHandler(handler);
+        }
+
+        root.setLevel(java.util.logging.Level.ALL);
+        root.addHandler(new Log4JLogHandler());
     }
 
     public void load() {
