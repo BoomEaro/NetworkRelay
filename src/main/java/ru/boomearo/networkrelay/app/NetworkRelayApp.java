@@ -30,6 +30,8 @@ import ru.boomearo.networkrelay.netty.UdpRelayUpstreamHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
@@ -37,6 +39,8 @@ import java.util.logging.Handler;
 @Getter
 @Log4j2
 public class NetworkRelayApp {
+
+    private final List<Channel> channels = new ArrayList<>();
 
     private EventLoopGroup tcpBossGroup;
     private EventLoopGroup tcpWorkerGroup;
@@ -62,7 +66,9 @@ public class NetworkRelayApp {
 
     public void load() {
         System.setProperty("io.netty.selectorAutoRebuildThreshold", "0");
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+        if (System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null) {
+            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+        }
 
         boolean epoll = false;
         if (Epoll.isAvailable()) {
@@ -116,6 +122,8 @@ public class NetworkRelayApp {
                             return;
                         }
 
+                        this.channels.add(future.channel());
+
                         log.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
                     });
         }
@@ -146,6 +154,8 @@ public class NetworkRelayApp {
                             return;
                         }
 
+                        this.channels.add(future.channel());
+
                         log.log(Level.INFO, "UDP: Listening on " + sourceAddress + "...");
                     });
         }
@@ -154,6 +164,15 @@ public class NetworkRelayApp {
     }
 
     public void unload() {
+        for (Channel channel : this.channels) {
+            try {
+                channel.close().syncUninterruptibly();
+            } catch (Throwable t) {
+                log.log(Level.ERROR, "Failed to close channel", t);
+            }
+        }
+        this.channels.clear();
+
         this.tcpBossGroup.shutdownGracefully();
         this.tcpWorkerGroup.shutdownGracefully();
         this.udpWorkerGroup.shutdownGracefully();
