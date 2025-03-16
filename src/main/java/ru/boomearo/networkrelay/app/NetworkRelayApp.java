@@ -141,9 +141,9 @@ public class NetworkRelayApp {
             new Bootstrap()
                     .channelFactory(udpChannelFactory)
                     .group(this.udpWorkerGroup)
-                    .handler(new ChannelInitializer<DatagramChannel>() {
+                    .handler(new ChannelInitializer<>() {
                         @Override
-                        public void initChannel(DatagramChannel ch) throws Exception {
+                        public void initChannel(Channel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());

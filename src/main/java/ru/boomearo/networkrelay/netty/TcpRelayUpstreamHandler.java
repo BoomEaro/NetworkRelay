@@ -2,7 +2,6 @@ package ru.boomearo.networkrelay.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.haproxy.*;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -45,9 +44,9 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         new Bootstrap()
                 .group(ctx.channel().eventLoop())
                 .channelFactory(this.channelFactory)
-                .handler(new ChannelInitializer<SocketChannel>() {
+                .handler(new ChannelInitializer<>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(Channel ch) throws Exception {
                         SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                         if (proxyProtocol &&
