@@ -45,7 +45,7 @@ allprojects {
 
     ext {
         lombokVersion = "1.18.34"
-        nettyVersion = "4.1.117.Final"
+        nettyVersion = "4.1.118.Final"
         spongeConfig = "4.1.2"
         jlineTerminal = "3.21.0"
         consoleAppender = "1.3.0"
