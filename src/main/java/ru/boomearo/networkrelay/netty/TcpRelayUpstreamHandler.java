@@ -3,6 +3,7 @@ package ru.boomearo.networkrelay.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.haproxy.*;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.ReferenceCountUtil;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -23,6 +25,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
     private final ChannelFactory<? extends Channel> channelFactory;
     private final SocketAddress socketAddressDestination;
     private final int timeout;
+    private final boolean proxyProtocol;
 
     private ChannelWrapper currentChannel;
     private TcpRelayDownstreamHandler tcpRelayDownstreamHandler;
@@ -35,7 +38,9 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.currentChannel);
 
-        log.log(Level.INFO, "Opening Downstream for Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination + "...");
+        SocketAddress remoteAddress = this.currentChannel.getRemoteAddress();
+
+        log.log(Level.INFO, "Opening Downstream for Upstream " + remoteAddress + " -> " + this.socketAddressDestination + "...");
 
         new Bootstrap()
                 .group(ctx.channel().eventLoop())
@@ -45,10 +50,36 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
+                        if (proxyProtocol &&
+                                remoteAddress instanceof InetSocketAddress sourceAddress &&
+                                socketAddressDestination instanceof InetSocketAddress destinationAddress) {
+                            ch.pipeline().addLast(HAProxyMessageEncoder.INSTANCE);
+
+                            ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                                @Override
+                                public void channelActive(ChannelHandlerContext ctx) throws Exception {
+                                    HAProxyMessage proxyMessage = new HAProxyMessage(
+                                            HAProxyProtocolVersion.V2,
+                                            HAProxyCommand.PROXY,
+                                            HAProxyProxiedProtocol.TCP4,
+                                            sourceAddress.getHostString(),
+                                            destinationAddress.getHostString(),
+                                            sourceAddress.getPort(),
+                                            destinationAddress.getPort()
+                                    );
+
+                                    ctx.writeAndFlush(proxyMessage);
+
+                                    super.channelActive(ctx);
+                                }
+                            });
+                        }
+
                         ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
                         ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                         ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("downstream", tcpRelayDownstreamHandler);
+
                     }
                 })
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)

@@ -15,7 +15,7 @@ public class ChannelWrapper {
     private boolean closed = false;
 
     public SocketAddress getRemoteAddress() {
-        return this.channel.remoteAddress();
+        return this.channel.remoteAddress() == null ? this.channel.parent().localAddress() : this.channel.remoteAddress();
     }
 
     public boolean isActive() {

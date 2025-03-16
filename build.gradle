@@ -69,6 +69,7 @@ allprojects {
         implementation "io.netty:netty-transport-native-epoll:${nettyVersion}:linux-x86_64"
         implementation "io.netty:netty-transport-native-epoll:${nettyVersion}:linux-aarch_64"
         implementation "io.netty:netty-handler:${nettyVersion}"
+        implementation "io.netty:netty-codec-haproxy:${nettyVersion}"
         implementation "org.spongepowered:configurate-yaml:${spongeConfig}"
         implementation "com.google.guava:guava:${guavaVersion}"
         implementation("it.unimi.dsi:dsiutils:${dsiUtils}") {

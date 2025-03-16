@@ -11,10 +11,11 @@ import java.net.InetSocketAddress;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServerConfiguration {
+public class TcpServerConfiguration {
 
     private InetSocketAddress source;
     private InetSocketAddress destination;
     private int timeout;
+    private boolean proxyProtocol;
 
 }

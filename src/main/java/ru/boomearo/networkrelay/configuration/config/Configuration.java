@@ -11,13 +11,31 @@ import java.util.List;
 @Data
 public class Configuration {
 
-    private List<ServerConfiguration> tcpServers = Arrays.asList(
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 30000),
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 30000)
+    private List<TcpServerConfiguration> tcpServers = Arrays.asList(
+            new TcpServerConfiguration(
+                    new InetSocketAddress("127.0.0.1", 25577),
+                    new InetSocketAddress("127.0.0.1", 25576),
+                    30000,
+                    false
+            ),
+            new TcpServerConfiguration(
+                    new InetSocketAddress("127.0.0.1", 25573),
+                    new InetSocketAddress("127.0.0.1", 25572),
+                    30000,
+                    false
+            )
     );
 
-    private List<ServerConfiguration> udpServers = Arrays.asList(
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25577), new InetSocketAddress("127.0.0.1", 25576), 30000),
-            new ServerConfiguration(new InetSocketAddress("127.0.0.1", 25573), new InetSocketAddress("127.0.0.1", 25572), 30000)
+    private List<UdpServerConfiguration> udpServers = Arrays.asList(
+            new UdpServerConfiguration(
+                    new InetSocketAddress("127.0.0.1", 25577),
+                    new InetSocketAddress("127.0.0.1", 25576),
+                    30000
+            ),
+            new UdpServerConfiguration(
+                    new InetSocketAddress("127.0.0.1", 25573),
+                    new InetSocketAddress("127.0.0.1", 25572),
+                    30000
+            )
     );
 }

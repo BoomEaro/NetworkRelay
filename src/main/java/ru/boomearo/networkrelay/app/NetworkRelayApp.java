@@ -7,7 +7,6 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -22,7 +21,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 import ru.boomearo.networkrelay.configuration.ConfigurationProvider;
 import ru.boomearo.networkrelay.configuration.config.Configuration;
-import ru.boomearo.networkrelay.configuration.config.ServerConfiguration;
+import ru.boomearo.networkrelay.configuration.config.TcpServerConfiguration;
+import ru.boomearo.networkrelay.configuration.config.UdpServerConfiguration;
 import ru.boomearo.networkrelay.netty.SimpleChannelInitializer;
 import ru.boomearo.networkrelay.netty.StatisticsUpstreamHandler;
 import ru.boomearo.networkrelay.netty.TcpRelayUpstreamHandler;
@@ -93,24 +93,29 @@ public class NetworkRelayApp {
         );
         this.configurationProvider.reload();
 
-        for (ServerConfiguration serverConfiguration : this.configurationProvider.get().getTcpServers()) {
-            InetSocketAddress sourceAddress = serverConfiguration.getSource();
-            InetSocketAddress destinationAddress = serverConfiguration.getDestination();
-            int timeout = serverConfiguration.getTimeout();
+        for (TcpServerConfiguration tcpServerConfiguration : this.configurationProvider.get().getTcpServers()) {
+            InetSocketAddress sourceAddress = tcpServerConfiguration.getSource();
+            InetSocketAddress destinationAddress = tcpServerConfiguration.getDestination();
+            int timeout = tcpServerConfiguration.getTimeout();
 
             new ServerBootstrap()
                     .group(this.tcpBossGroup, this.tcpWorkerGroup)
                     .option(ChannelOption.SO_REUSEADDR, true)
                     .channelFactory(tcpServerChannelFactory)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<>() {
                         @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
+                        protected void initChannel(Channel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
                             ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                             ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
-                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(tcpChannelFactory, destinationAddress, timeout));
+                            ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(
+                                    tcpChannelFactory,
+                                    destinationAddress,
+                                    timeout,
+                                    tcpServerConfiguration.isProxyProtocol()
+                            ));
                         }
                     })
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
@@ -128,10 +133,10 @@ public class NetworkRelayApp {
                     });
         }
 
-        for (ServerConfiguration serverConfiguration : this.configurationProvider.get().getUdpServers()) {
-            InetSocketAddress sourceAddress = serverConfiguration.getSource();
-            InetSocketAddress destinationAddress = serverConfiguration.getDestination();
-            int timeout = serverConfiguration.getTimeout();
+        for (UdpServerConfiguration udpServerConfiguration : this.configurationProvider.get().getUdpServers()) {
+            InetSocketAddress sourceAddress = udpServerConfiguration.getSource();
+            InetSocketAddress destinationAddress = udpServerConfiguration.getDestination();
+            int timeout = udpServerConfiguration.getTimeout();
 
             new Bootstrap()
                     .channelFactory(udpChannelFactory)
