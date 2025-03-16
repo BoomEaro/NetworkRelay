@@ -5,6 +5,7 @@ The operating principle is very simple, it is actually a relay or port forwardin
 
 ### Protocol support
 Supports both TCP and UDP proxying.
+It also supports proxy protocol (transfer of source IP address and port)
 
 ### Commands
 stop - Stop the proxy server
