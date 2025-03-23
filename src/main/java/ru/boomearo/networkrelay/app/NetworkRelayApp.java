@@ -12,6 +12,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -109,7 +110,8 @@ public class NetworkRelayApp {
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
                             ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
-                            ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("read-timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("write-timeout", new WriteTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                             ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(
                                     tcpChannelFactory,
                                     destinationAddress,

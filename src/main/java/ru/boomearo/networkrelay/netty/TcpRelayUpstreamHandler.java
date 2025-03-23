@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.handler.codec.haproxy.*;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.ReferenceCountUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -76,7 +77,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
                         ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
                         ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
-                        ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                        ch.pipeline().addLast("read-timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                        ch.pipeline().addLast("write-timeout", new WriteTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("downstream", tcpRelayDownstreamHandler);
 
                     }

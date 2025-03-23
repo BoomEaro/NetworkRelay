@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -49,13 +50,14 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
             new Bootstrap()
                     .group(ctx.channel().eventLoop())
                     .channelFactory(this.channelFactory)
-                    .handler(new ChannelInitializer<DatagramChannel>() {
+                    .handler(new ChannelInitializer<>() {
                         @Override
-                        protected void initChannel(DatagramChannel ch) throws Exception {
+                        protected void initChannel(Channel ch) throws Exception {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
-                            ch.pipeline().addLast("timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("read-timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("write-timeout", new WriteTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
                             ch.pipeline().addLast("downstream", newUdpRelayDownstreamHandler);
                         }
                     })
