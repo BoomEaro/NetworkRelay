@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
 
     private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new Object2ObjectOpenHashMap<>();
 
+    @Nullable
     private ChannelWrapper currentChannel;
 
     @Override
@@ -36,6 +38,10 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (this.currentChannel == null) {
+            return;
+        }
+
         this.currentChannel.setClosed(true);
     }
 

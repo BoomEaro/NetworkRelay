@@ -3,6 +3,8 @@ package ru.boomearo.networkrelay.commands;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -16,17 +18,17 @@ public abstract class CommandNode<T, D> {
     protected final Map<String, CommandNode<T, D>> nodes = new Object2ObjectLinkedOpenHashMap<>();
     protected final Map<String, CommandNode<T, D>> withAliasesNodes = new Object2ObjectLinkedOpenHashMap<>();
 
-    public CommandNode(CommandNode<T, D> rootNode, String name) {
+    public CommandNode(@Nullable CommandNode<T, D> rootNode, @NonNull String name) {
         this(rootNode, name, Collections.emptyList());
     }
 
-    public CommandNode(CommandNode<T, D> rootNode, String name, List<String> aliases) {
+    public CommandNode(@Nullable CommandNode<T, D> rootNode, String name, @NonNull List<String> aliases) {
         this.rootNode = rootNode;
         this.name = name;
         this.aliases = aliases;
     }
 
-    public void execute(T sender, String[] args) {
+    public void execute(@NonNull T sender, @NonNull String[] args) {
         if (!hasPermission(sender)) {
             onPermissionFailedExecute(sender, args);
             return;
@@ -46,7 +48,7 @@ public abstract class CommandNode<T, D> {
         nextNode.execute(sender, newArgs);
     }
 
-    public void onExecuteSafe(T sender, String[] args) {
+    public void onExecuteSafe(@NonNull T sender, @NonNull String[] args) {
         try {
             onExecute(sender, args);
         } catch (Exception e) {
@@ -54,7 +56,8 @@ public abstract class CommandNode<T, D> {
         }
     }
 
-    public Collection<String> suggest(T sender, String[] args) {
+    @NonNull
+    public Collection<String> suggest(@NonNull T sender, @NonNull String[] args) {
         if (!hasPermission(sender)) {
             return onPermissionFailedSuggest(sender, args);
         }
@@ -71,7 +74,8 @@ public abstract class CommandNode<T, D> {
         return nextNode.suggest(sender, newArgs);
     }
 
-    public Collection<String> onSuggestSafe(T sender, String[] args) {
+    @NonNull
+    public Collection<String> onSuggestSafe(@NonNull T sender, @NonNull String[] args) {
         try {
             return onSuggest(sender, args);
         } catch (Exception e) {
@@ -79,7 +83,7 @@ public abstract class CommandNode<T, D> {
         }
     }
 
-    public void addNode(CommandNode<T, D> node) {
+    public void addNode(@NonNull CommandNode<T, D> node) {
         this.nodes.put(node.getName().toLowerCase(), node);
         this.withAliasesNodes.put(node.getName().toLowerCase(), node);
         for (String alias : node.getAliases()) {
@@ -87,7 +91,8 @@ public abstract class CommandNode<T, D> {
         }
     }
 
-    public List<D> getDescriptionList(T sender) {
+    @NonNull
+    public List<D> getDescriptionList(@NonNull T sender) {
         List<D> tmp = new ArrayList<>();
         if (hasPermission(sender)) {
             List<D> descs = getDescription(sender);
@@ -102,7 +107,8 @@ public abstract class CommandNode<T, D> {
         return tmp;
     }
 
-    public Collection<D> getDescriptionListFromRoot(T sender) {
+    @NonNull
+    public Collection<D> getDescriptionListFromRoot(@NonNull T sender) {
         if (this.rootNode == null) {
             return getDescriptionList(sender);
         }
@@ -110,11 +116,12 @@ public abstract class CommandNode<T, D> {
         return this.rootNode.getDescriptionList(sender);
     }
 
-    public boolean hasPermission(T sender) {
+    public boolean hasPermission(@NonNull T sender) {
         return true;
     }
 
-    public Collection<String> onSuggest(T sender, String[] args) {
+    @NonNull
+    public Collection<String> onSuggest(@NonNull T sender, @NonNull String[] args) {
         if (args.length != 1) {
             return Collections.emptyList();
         }
@@ -130,16 +137,19 @@ public abstract class CommandNode<T, D> {
         return matches;
     }
 
-    public abstract List<D> getDescription(T sender);
+    @Nullable
+    public abstract List<D> getDescription(@NonNull T sender);
 
-    public abstract void onExecute(T sender, String[] args);
+    public abstract void onExecute(@NonNull T sender, @NonNull String[] args);
 
-    public abstract void onExecuteException(T sender, String[] args, Exception e);
+    public abstract void onExecuteException(@NonNull T sender, @NonNull String[] args, @NonNull Exception e);
 
-    public abstract Collection<String> onSuggestException(T sender, String[] args, Exception e);
+    @NonNull
+    public abstract Collection<String> onSuggestException(@NonNull T sender, @NonNull String[] args, @NonNull Exception e);
 
-    public abstract void onPermissionFailedExecute(T sender, String[] args);
+    public abstract void onPermissionFailedExecute(@NonNull T sender, @NonNull String[] args);
 
-    public abstract Collection<String> onPermissionFailedSuggest(T sender, String[] args);
+    @NonNull
+    public abstract Collection<String> onPermissionFailedSuggest(@NonNull T sender, @NonNull String[] args);
 
 }

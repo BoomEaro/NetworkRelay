@@ -3,6 +3,7 @@ package ru.boomearo.networkrelay.netty;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
@@ -63,7 +64,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         log.log(Level.ERROR, "Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
     }
 
-    public void writePacket(Object msg) {
+    public void writePacket(@NonNull Object msg) {
         if (this.currentChannel == null) {
             this.packetQueue.add(msg);
             return;
@@ -72,7 +73,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         this.currentChannel.writeAndFlushVoidPromise(msg);
     }
 
-    public void handleQueuedPackets(Consumer<Object> consumer) {
+    public void handleQueuedPackets(@NonNull Consumer<Object> consumer) {
         Object packet;
         while ((packet = this.packetQueue.poll()) != null) {
             consumer.accept(packet);

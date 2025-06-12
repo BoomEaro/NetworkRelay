@@ -1,5 +1,7 @@
 package ru.boomearo.networkrelay.commands.app;
 
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import ru.boomearo.networkrelay.commands.CommandNodeApp;
 import ru.boomearo.networkrelay.commands.ConsoleSender;
 import ru.boomearo.networkrelay.netty.*;
@@ -12,19 +14,20 @@ public class CommandConn extends CommandNodeApp {
         super(root, "conn");
     }
 
+    @Nullable
     @Override
-    public List<String> getDescription(ConsoleSender consoleSender) {
+    public List<String> getDescription(@NonNull ConsoleSender consoleSender) {
         return List.of("conn - display current active connections");
     }
 
     @Override
-    public void onExecute(ConsoleSender sender, String[] args) {
+    public void onExecute(@NonNull ConsoleSender sender, @NonNull String[] args) {
         if (args.length != 0) {
             sendCurrentHelp(sender);
             return;
         }
 
-        sender.sendMessage(SEP);
+        sender.sendMessage(SEPARATOR);
         sender.sendMessage("TCP: Opened Upstream: " + TcpRelayUpstreamHandler.OPENED_CONNECTIONS.sum());
         sender.sendMessage("TCP: Opened Downstream: " + TcpRelayDownstreamHandler.OPENED_CONNECTIONS.sum());
         sender.sendMessage("UDP: Opened Downstream: " + UdpRelayDownstreamHandler.OPENED_CONNECTIONS.sum());
@@ -32,13 +35,15 @@ public class CommandConn extends CommandNodeApp {
         sender.sendMessage("Total Upstream write bytes: " + bytesIntoHumanReadable(StatisticsUpstreamHandler.TOTAL_WRITE.sum()));
         sender.sendMessage("Total Downstream read bytes: " + bytesIntoHumanReadable(StatisticsDownstreamHandler.TOTAL_READ.sum()));
         sender.sendMessage("Total Downstream write bytes: " + bytesIntoHumanReadable(StatisticsDownstreamHandler.TOTAL_WRITE.sum()));
-        sender.sendMessage(SEP);
+        sender.sendMessage(SEPARATOR);
     }
 
+    @NonNull
     private static String bytesIntoHumanReadable(long bytes) {
         return bytesIntoHumanReadable(bytes, false);
     }
 
+    @NonNull
     private static String bytesIntoHumanReadable(long bytes, boolean ki) {
         if (ki) {
             bytes = bytes * 8;

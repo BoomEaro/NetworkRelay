@@ -1,5 +1,7 @@
 package ru.boomearo.networkrelay.commands.app;
 
+import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 import ru.boomearo.networkrelay.commands.CommandNodeApp;
 import ru.boomearo.networkrelay.commands.ConsoleSender;
 
@@ -11,13 +13,14 @@ public class CommandMain extends CommandNodeApp {
         super(null, "root");
     }
 
+    @Nullable
     @Override
-    public List<String> getDescription(ConsoleSender commandSender) {
+    public List<String> getDescription(@NonNull ConsoleSender commandSender) {
         return null;
     }
 
     @Override
-    public void onExecute(ConsoleSender sender, String[] args) {
+    public void onExecute(@NonNull ConsoleSender sender, @NonNull String[] args) {
         sendHelp(sender);
     }
 }

@@ -1,8 +1,10 @@
 package ru.boomearo.networkrelay.configuration;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
@@ -18,12 +20,16 @@ import java.util.List;
 @AllArgsConstructor
 public class ConfigurationProvider<T> {
 
+    @NonNull
     private final Class<T> clazz;
+    @NonNull
     private final Path file;
+    @NonNull
     private Collection<ConfigurateSerializer<?>> serializers = List.of(
             new SocketAddressSerializer()
     );
 
+    @Nullable
     private T loadedConfiguration = null;
 
     public T get() {
@@ -39,7 +45,7 @@ public class ConfigurationProvider<T> {
     }
 
     @SneakyThrows
-    public void save(Class<T> clazz, T data) {
+    public void save(@NonNull Class<T> clazz, @NonNull T data) {
         YamlConfigurationLoader loader = createLoader();
 
         ConfigurationNode node = loader.createNode().set(clazz, data);
@@ -58,6 +64,7 @@ public class ConfigurationProvider<T> {
         loader.save(node);
     }
 
+    @NonNull
     private YamlConfigurationLoader createLoader() {
         return YamlConfigurationLoader.builder()
                 .path(this.file)
@@ -85,9 +92,9 @@ public class ConfigurationProvider<T> {
     }
 
     private <K> void registerSerializer(
-            TypeSerializerCollection.Builder builder,
-            Class<K> clazz,
-            TypeSerializer<?> serializer
+            @NonNull TypeSerializerCollection.Builder builder,
+            @NonNull Class<K> clazz,
+            @NonNull TypeSerializer<?> serializer
     ) {
         builder.register(clazz, (TypeSerializer<K>) serializer);
     }

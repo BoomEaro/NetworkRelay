@@ -2,6 +2,7 @@ package ru.boomearo.networkrelay.netty;
 
 import io.netty.channel.Channel;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.net.SocketAddress;
@@ -10,10 +11,12 @@ import java.net.SocketAddress;
 @Data
 public class ChannelWrapper {
 
+    @NonNull
     private final Channel channel;
 
     private boolean closed = false;
 
+    @NonNull
     public SocketAddress getRemoteAddress() {
         return this.channel.remoteAddress() == null ? this.channel.parent().localAddress() : this.channel.remoteAddress();
     }
@@ -22,7 +25,7 @@ public class ChannelWrapper {
         return this.channel.isActive();
     }
 
-    public void write(Object packet) {
+    public void write(@NonNull Object packet) {
         if (this.closed) {
             return;
         }
@@ -30,7 +33,7 @@ public class ChannelWrapper {
         this.channel.write(packet);
     }
 
-    public void writeVoidPromise(Object packet) {
+    public void writeVoidPromise(@NonNull Object packet) {
         if (this.closed) {
             return;
         }
@@ -38,7 +41,7 @@ public class ChannelWrapper {
         this.channel.write(packet, this.channel.voidPromise());
     }
 
-    public void writeAndFlush(Object packet) {
+    public void writeAndFlush(@NonNull Object packet) {
         if (this.closed) {
             return;
         }
@@ -46,7 +49,7 @@ public class ChannelWrapper {
         this.channel.writeAndFlush(packet);
     }
 
-    public void writeAndFlushVoidPromise(Object packet) {
+    public void writeAndFlushVoidPromise(@NonNull Object packet) {
         if (this.closed) {
             return;
         }

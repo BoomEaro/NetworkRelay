@@ -1,5 +1,7 @@
 package ru.boomearo.networkrelay.commands.app;
 
+import lombok.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import ru.boomearo.networkrelay.commands.CommandNodeApp;
 import ru.boomearo.networkrelay.commands.ConsoleSender;
 
@@ -10,17 +12,18 @@ import java.util.List;
 
 public class CommandCpu extends CommandNodeApp {
 
-    public CommandCpu(CommandNodeApp root) {
+    public CommandCpu(@NonNull CommandNodeApp root) {
         super(root, "cpu");
     }
 
+    @Nullable
     @Override
-    public List<String> getDescription(ConsoleSender consoleSender) {
+    public List<String> getDescription(@NonNull ConsoleSender consoleSender) {
         return List.of("cpu - display current memory and cpu usage");
     }
 
     @Override
-    public void onExecute(ConsoleSender sender, String[] args) {
+    public void onExecute(@NonNull ConsoleSender sender, @NonNull String[] args) {
         if (args.length != 0) {
             sendCurrentHelp(sender);
             return;
@@ -41,7 +44,7 @@ public class CommandCpu extends CommandNodeApp {
 
         long totalUsed = usedHeapMem + usedDirectMem;
 
-        sender.sendMessage(SEP);
+        sender.sendMessage(SEPARATOR);
         sender.sendMessage("Processor usage: " + getProcessorUsage(true) + " (threads: " + Runtime.getRuntime().availableProcessors() + ")");
         sender.sendMessage("Process usage: " + getProcessorUsage(false) + " (threads: " + ManagementFactory.getThreadMXBean().getThreadCount() + ")");
         sender.sendMessage("Maximum heap: " + maxHeapMem + " MB");
@@ -50,7 +53,7 @@ public class CommandCpu extends CommandNodeApp {
         sender.sendMessage("Used heap: " + usedHeapMem + " MB");
         sender.sendMessage("Used direct memory: " + usedDirectMem + " MB");
         sender.sendMessage("Total used: " + totalUsed + " MB");
-        sender.sendMessage(SEP);
+        sender.sendMessage(SEPARATOR);
     }
 
     private static String getProcessorUsage(boolean system) {

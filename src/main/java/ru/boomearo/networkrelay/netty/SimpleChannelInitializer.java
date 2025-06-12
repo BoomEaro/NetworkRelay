@@ -8,7 +8,7 @@ import io.netty.channel.WriteBufferWaterMark;
 
 public class SimpleChannelInitializer extends ChannelInitializer<Channel> {
 
-    public static SimpleChannelInitializer INSTANCE = new SimpleChannelInitializer();
+    public static final SimpleChannelInitializer INSTANCE = new SimpleChannelInitializer();
 
     private static final int LOW_MARK = 2 << 18;
     private static final int HIGH_MARK = 2 << 20;

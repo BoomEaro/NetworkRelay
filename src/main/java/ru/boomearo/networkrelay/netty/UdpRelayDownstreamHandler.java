@@ -4,9 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
@@ -26,6 +28,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
 
     private final Queue<DatagramPacket> packetQueue = new LinkedList<>();
 
+    @Nullable
     private ChannelWrapper currentChannel;
 
     @Override
@@ -43,26 +46,35 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         OPENED_CONNECTIONS.decrement();
 
-        this.currentChannel.setClosed(true);
+        if (this.currentChannel != null) {
+            this.currentChannel.setClosed(true);
+        }
 
         this.udpRelayUpstreamHandler.getDownstreamHandlers().remove(this.socketAddressSource);
 
-        log.log(Level.INFO, "Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.socketAddressSource);
+        log.log(Level.INFO, "Closed Downstream " + (this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "") + " <- " + this.socketAddressSource);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
-        this.udpRelayUpstreamHandler.getCurrentChannel().writeAndFlushVoidPromise(new DatagramPacket(msg.content().retain(), this.socketAddressSource));
+        ChannelWrapper channelWrapper = this.udpRelayUpstreamHandler.getCurrentChannel();
+        if (channelWrapper == null) {
+            return;
+        }
+
+        channelWrapper.writeAndFlushVoidPromise(new DatagramPacket(msg.content().retain(), this.socketAddressSource));
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        this.currentChannel.close();
+        if (this.currentChannel != null) {
+            this.currentChannel.close();
+        }
 
-        log.log(Level.ERROR, "Exception on Downstream handler " + this.currentChannel.getRemoteAddress() + " <- " + this.socketAddressSource, cause);
+        log.log(Level.ERROR, "Exception on Downstream handler " + (this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "") + " <- " + this.socketAddressSource, cause);
     }
 
-    public void writePacket(DatagramPacket msg) {
+    public void writePacket(@NonNull DatagramPacket msg) {
         if (this.currentChannel == null) {
             this.packetQueue.add(msg);
             return;
@@ -71,7 +83,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
         this.currentChannel.writeAndFlushVoidPromise(msg);
     }
 
-    public void handleQueuedPackets(Consumer<DatagramPacket> consumer) {
+    public void handleQueuedPackets(@NonNull Consumer<DatagramPacket> consumer) {
         DatagramPacket packet;
         while ((packet = this.packetQueue.poll()) != null) {
             consumer.accept(packet);
