@@ -10,7 +10,8 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
-import ru.boomearo.networkrelay.configuration.serializers.SocketAddressSerializer;
+import ru.boomearo.networkrelay.configuration.serializers.InetAddressSerializer;
+import ru.boomearo.networkrelay.configuration.serializers.InetSocketAddressSerializer;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -26,7 +27,8 @@ public class ConfigurationProvider<T> {
     private final Path file;
     @NonNull
     private Collection<ConfigurateSerializer<?>> serializers = List.of(
-            new SocketAddressSerializer()
+            new InetSocketAddressSerializer(),
+            new InetAddressSerializer()
     );
 
     @Nullable

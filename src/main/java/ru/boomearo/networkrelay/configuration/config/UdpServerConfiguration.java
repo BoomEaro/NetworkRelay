@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Set;
 
 @ConfigSerializable
 @Data
@@ -16,5 +18,5 @@ public class UdpServerConfiguration {
     private InetSocketAddress source;
     private InetSocketAddress destination;
     private int timeout;
-
+    private Set<InetAddress> whitelist;
 }

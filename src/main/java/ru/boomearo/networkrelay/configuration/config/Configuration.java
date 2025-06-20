@@ -6,6 +6,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @ConfigSerializable
 @Data
@@ -16,13 +17,15 @@ public class Configuration {
                     new InetSocketAddress("127.0.0.1", 25577),
                     new InetSocketAddress("127.0.0.1", 25576),
                     30000,
-                    false
+                    false,
+                    Set.of()
             ),
             new TcpServerConfiguration(
                     new InetSocketAddress("127.0.0.1", 25573),
                     new InetSocketAddress("127.0.0.1", 25572),
                     30000,
-                    false
+                    false,
+                    Set.of()
             )
     );
 
@@ -30,12 +33,14 @@ public class Configuration {
             new UdpServerConfiguration(
                     new InetSocketAddress("127.0.0.1", 25577),
                     new InetSocketAddress("127.0.0.1", 25576),
-                    30000
+                    30000,
+                    Set.of()
             ),
             new UdpServerConfiguration(
                     new InetSocketAddress("127.0.0.1", 25573),
                     new InetSocketAddress("127.0.0.1", 25572),
-                    30000
+                    30000,
+                    Set.of()
             )
     );
 }

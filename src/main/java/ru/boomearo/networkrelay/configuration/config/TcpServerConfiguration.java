@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Set;
 
 @ConfigSerializable
 @Data
@@ -17,5 +19,6 @@ public class TcpServerConfiguration {
     private InetSocketAddress destination;
     private int timeout;
     private boolean proxyProtocol;
+    private Set<InetAddress> whitelist;
 
 }

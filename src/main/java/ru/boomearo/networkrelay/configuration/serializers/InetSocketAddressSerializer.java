@@ -8,9 +8,9 @@ import ru.boomearo.networkrelay.configuration.ConfigurateSerializer;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 
-public class SocketAddressSerializer extends ConfigurateSerializer<InetSocketAddress> {
+public class InetSocketAddressSerializer extends ConfigurateSerializer<InetSocketAddress> {
 
-    public SocketAddressSerializer() {
+    public InetSocketAddressSerializer() {
         super(InetSocketAddress.class);
     }
 

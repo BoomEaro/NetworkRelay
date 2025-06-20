@@ -29,10 +29,13 @@ import ru.boomearo.networkrelay.netty.StatisticsUpstreamHandler;
 import ru.boomearo.networkrelay.netty.TcpRelayUpstreamHandler;
 import ru.boomearo.networkrelay.netty.UdpRelayUpstreamHandler;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
@@ -98,6 +101,8 @@ public class NetworkRelayApp {
             InetSocketAddress sourceAddress = tcpServerConfiguration.getSource();
             InetSocketAddress destinationAddress = tcpServerConfiguration.getDestination();
             int timeout = tcpServerConfiguration.getTimeout();
+            boolean isProxyProtocol = tcpServerConfiguration.isProxyProtocol();
+            Set<InetAddress> whitelist = tcpServerConfiguration.getWhitelist();
 
             new ServerBootstrap()
                     .group(this.tcpBossGroup, this.tcpWorkerGroup)
@@ -106,6 +111,17 @@ public class NetworkRelayApp {
                     .childHandler(new ChannelInitializer<>() {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
+                            SocketAddress remoteAddress = ch.remoteAddress();
+                            if (remoteAddress instanceof InetSocketAddress inetSocketAddress) {
+                                if (!whitelist.isEmpty()) {
+                                    if (!whitelist.contains(inetSocketAddress.getAddress())) {
+                                        log.log(Level.WARN, "Closed blacklisted address " + remoteAddress);
+                                        ch.close();
+                                        return;
+                                    }
+                                }
+                            }
+
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
@@ -116,7 +132,7 @@ public class NetworkRelayApp {
                                     tcpChannelFactory,
                                     destinationAddress,
                                     timeout,
-                                    tcpServerConfiguration.isProxyProtocol()
+                                    isProxyProtocol
                             ));
                         }
                     })
@@ -139,6 +155,7 @@ public class NetworkRelayApp {
             InetSocketAddress sourceAddress = udpServerConfiguration.getSource();
             InetSocketAddress destinationAddress = udpServerConfiguration.getDestination();
             int timeout = udpServerConfiguration.getTimeout();
+            Set<InetAddress> whitelist = udpServerConfiguration.getWhitelist();
 
             new Bootstrap()
                     .channelFactory(udpChannelFactory)
@@ -149,7 +166,12 @@ public class NetworkRelayApp {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
-                            ch.pipeline().addLast("relay", new UdpRelayUpstreamHandler(destinationAddress, udpChannelFactory, timeout));
+                            ch.pipeline().addLast("relay", new UdpRelayUpstreamHandler(
+                                    destinationAddress,
+                                    udpChannelFactory,
+                                    timeout,
+                                    whitelist
+                            ));
                         }
                     })
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)

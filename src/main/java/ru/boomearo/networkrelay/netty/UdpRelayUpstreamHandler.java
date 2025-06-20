@@ -13,8 +13,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
     private final InetSocketAddress socketAddressDestination;
     private final ChannelFactory<? extends DatagramChannel> channelFactory;
     private final int timeout;
+    private final Set<InetAddress> whitelist;
 
     private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new Object2ObjectOpenHashMap<>();
 
@@ -48,6 +51,12 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         InetSocketAddress senderAddress = msg.sender();
+
+        if (!this.whitelist.isEmpty()) {
+            if (!this.whitelist.contains(senderAddress.getAddress())) {
+                return;
+            }
+        }
 
         UdpRelayDownstreamHandler downstreamHandler = this.downstreamHandlers.get(senderAddress);
         if (downstreamHandler == null) {
