@@ -2,10 +2,10 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%t] [%logger{36}]: %msg%n%xEx}"/>
+            <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%logger]: %msg%n%xEx}"/>
         </Console>
         <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="false">
-            <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%t] [%logger{36}]: %msg%n%xEx}"/>
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n%xEx"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <OnStartupTriggeringPolicy />
