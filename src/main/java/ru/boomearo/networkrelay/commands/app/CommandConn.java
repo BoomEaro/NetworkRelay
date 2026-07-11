@@ -40,32 +40,23 @@ public class CommandConn extends CommandNodeApp {
 
     @NonNull
     private static String bytesIntoHumanReadable(long bytes) {
-        return bytesIntoHumanReadable(bytes, false);
-    }
-
-    @NonNull
-    private static String bytesIntoHumanReadable(long bytes, boolean ki) {
-        if (ki) {
-            bytes = bytes * 8;
-        }
-
         long kilobyte = 1024;
         long megabyte = kilobyte * 1024;
         long gigabyte = megabyte * 1024;
         long terabyte = gigabyte * 1024;
 
         if ((bytes >= 0) && (bytes < kilobyte)) {
-            return bytes + (ki ? " Bi" : " B");
+            return bytes + " B";
         } else if ((bytes >= kilobyte) && (bytes < megabyte)) {
-            return (bytes / kilobyte) + (ki ? " KiB" : " KB");
+            return (bytes / kilobyte) + " KB";
         } else if ((bytes >= megabyte) && (bytes < gigabyte)) {
-            return (bytes / megabyte) + (ki ? " MiB" : " MB");
+            return (bytes / megabyte) + " MB";
         } else if ((bytes >= gigabyte) && (bytes < terabyte)) {
-            return (bytes / gigabyte) + (ki ? " GiB" : " GB");
+            return (bytes / gigabyte) + "GB";
         } else if (bytes >= terabyte) {
-            return (bytes / terabyte) + (ki ? " TiB" : " TB");
+            return (bytes / terabyte) + " TB";
         } else {
-            return bytes + " Bites";
+            return bytes + " bytes";
         }
     }
 }
