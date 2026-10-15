@@ -17,6 +17,8 @@ public class StatisticsUpstreamHandler extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof ByteBuf byteBuf) {
             TOTAL_READ.add(byteBuf.readableBytes());
+        } else if (msg instanceof ByteBufHolder byteBufHolder) {
+            TOTAL_WRITE.add(byteBufHolder.content().readableBytes());
         }
 
         super.channelRead(ctx, msg);
