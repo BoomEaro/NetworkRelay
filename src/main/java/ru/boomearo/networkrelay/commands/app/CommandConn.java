@@ -49,7 +49,7 @@ public class CommandConn extends CommandNodeApp {
         double terabyte = gigabyte * 1024;
 
         if (bytes >= 0 && bytes < kilobyte) {
-            return bytes + " B";
+            return DECIMAL_FORMAT.format(bytes) + " B";
         } else if (bytes >= kilobyte && bytes < megabyte) {
             return DECIMAL_FORMAT.format(bytes / kilobyte) + " KB";
         } else if (bytes >= megabyte && bytes < gigabyte) {
@@ -59,7 +59,7 @@ public class CommandConn extends CommandNodeApp {
         } else if (bytes >= terabyte) {
             return DECIMAL_FORMAT.format(bytes / terabyte) + " TB";
         } else {
-            return bytes + " bytes";
+            return DECIMAL_FORMAT.format(bytes) + " bytes";
         }
     }
 }
