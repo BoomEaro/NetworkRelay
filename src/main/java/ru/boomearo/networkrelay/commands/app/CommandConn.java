@@ -6,9 +6,12 @@ import ru.boomearo.networkrelay.commands.CommandNodeApp;
 import ru.boomearo.networkrelay.commands.ConsoleSender;
 import ru.boomearo.networkrelay.netty.*;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class CommandConn extends CommandNodeApp {
+
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
 
     public CommandConn(CommandNodeApp root) {
         super(root, "conn");
@@ -39,22 +42,22 @@ public class CommandConn extends CommandNodeApp {
     }
 
     @NonNull
-    private static String bytesIntoHumanReadable(long bytes) {
-        long kilobyte = 1024;
-        long megabyte = kilobyte * 1024;
-        long gigabyte = megabyte * 1024;
-        long terabyte = gigabyte * 1024;
+    private static String bytesIntoHumanReadable(double bytes) {
+        double kilobyte = 1024;
+        double megabyte = kilobyte * 1024;
+        double gigabyte = megabyte * 1024;
+        double terabyte = gigabyte * 1024;
 
-        if ((bytes >= 0) && (bytes < kilobyte)) {
+        if (bytes >= 0 && bytes < kilobyte) {
             return bytes + " B";
-        } else if ((bytes >= kilobyte) && (bytes < megabyte)) {
-            return (bytes / kilobyte) + " KB";
-        } else if ((bytes >= megabyte) && (bytes < gigabyte)) {
-            return (bytes / megabyte) + " MB";
-        } else if ((bytes >= gigabyte) && (bytes < terabyte)) {
-            return (bytes / gigabyte) + "GB";
+        } else if (bytes >= kilobyte && bytes < megabyte) {
+            return DECIMAL_FORMAT.format(bytes / kilobyte) + " KB";
+        } else if (bytes >= megabyte && bytes < gigabyte) {
+            return DECIMAL_FORMAT.format(bytes / megabyte) + " MB";
+        } else if (bytes >= gigabyte && bytes < terabyte) {
+            return DECIMAL_FORMAT.format(bytes / gigabyte) + " GB";
         } else if (bytes >= terabyte) {
-            return (bytes / terabyte) + " TB";
+            return DECIMAL_FORMAT.format(bytes / terabyte) + " TB";
         } else {
             return bytes + " bytes";
         }

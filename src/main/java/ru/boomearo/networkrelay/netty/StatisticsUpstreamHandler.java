@@ -1,6 +1,7 @@
 package ru.boomearo.networkrelay.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -25,6 +26,8 @@ public class StatisticsUpstreamHandler extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         if (msg instanceof ByteBuf byteBuf) {
             TOTAL_WRITE.add(byteBuf.readableBytes());
+        } else if (msg instanceof ByteBufHolder byteBufHolder) {
+            TOTAL_WRITE.add(byteBufHolder.content().readableBytes());
         }
 
         super.write(ctx, msg, promise);
