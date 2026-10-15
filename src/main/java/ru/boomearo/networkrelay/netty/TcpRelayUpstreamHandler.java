@@ -28,12 +28,14 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     private ChannelWrapper currentChannel;
     private TcpRelayDownstreamHandler tcpRelayDownstreamHandler;
+    private Channel downstreamChannel;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         OPENED_CONNECTIONS.increment();
 
-        this.currentChannel = new ChannelWrapper(ctx.channel());
+        Channel channel = ctx.channel();
+        this.currentChannel = new ChannelWrapper(channel);
 
         this.tcpRelayDownstreamHandler = new TcpRelayDownstreamHandler(this.currentChannel);
 
@@ -41,8 +43,8 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         log.info("Opening Downstream for Upstream {} -> {}...", remoteAddress, this.socketAddressDestination);
 
-        new Bootstrap()
-                .group(ctx.channel().eventLoop())
+        ChannelFuture channelFuture = new Bootstrap()
+                .group(channel.eventLoop())
                 .channelFactory(this.channelFactory)
                 .handler(new ChannelInitializer<>() {
                     @Override
@@ -84,7 +86,13 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                 })
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)
                 .remoteAddress(this.socketAddressDestination)
-                .connect();
+                .connect().addListener((ChannelFuture future) -> {
+                    if (!future.isSuccess() && channel.isActive()) {
+                        log.warn("Failed to connect to {}: {}", this.socketAddressDestination, future.cause());
+                        this.currentChannel.close();
+                    }
+                });
+        this.downstreamChannel = channelFuture.channel();
     }
 
     @Override
@@ -94,10 +102,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         this.currentChannel.setClosed(true);
 
         // Close downstream now
-        ChannelWrapper downstreamChannel = this.tcpRelayDownstreamHandler.getCurrentChannel();
-        if (downstreamChannel != null) {
-            downstreamChannel.close();
-        }
+        this.downstreamChannel.close();
 
         // Release possible queued packets
         this.tcpRelayDownstreamHandler.handleQueuedPackets(ReferenceCountUtil::release);

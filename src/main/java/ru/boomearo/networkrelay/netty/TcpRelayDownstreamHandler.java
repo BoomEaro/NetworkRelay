@@ -2,7 +2,6 @@ package ru.boomearo.networkrelay.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,6 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
-@Getter
 @Slf4j
 public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
