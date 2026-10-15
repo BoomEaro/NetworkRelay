@@ -61,7 +61,6 @@ dependencies {
     implementation(libs.disruptor)
     implementation(libs.slf4j.jdk)
     implementation(libs.slf4j.api)
-    implementation(libs.caffeine)
     implementation(libs.guava)
     implementation(libs.configurate.yaml)
 

@@ -3,7 +3,6 @@ netty = "4.2.19.Final"
 lombok = "1.18.46"
 guava = "33.6.0-jre"
 log4j = "2.26.1"
-caffeine = "3.2.3"
 dsiutils = "2.7.4"
 slf4j-api = "2.0.18"
 slf4j-jdk = "2.0.18"
@@ -26,8 +25,6 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 slf4j-jdk = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j-jdk" }
 
 console-appender = { module = "net.minecrell:terminalconsoleappender", version.ref = "console-appender" }
-
-caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 
 dsiutils = { module = "it.unimi.dsi:dsiutils", version.ref = "dsiutils" }
 
