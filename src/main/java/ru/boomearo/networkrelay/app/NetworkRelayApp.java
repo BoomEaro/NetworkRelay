@@ -33,9 +33,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class NetworkRelayApp {
 
-    private final List<Channel> channels = new ArrayList<>();
+    private final List<Channel> channels = new CopyOnWriteArrayList<>();
 
     private EventLoopGroup tcpBossGroup;
     private EventLoopGroup tcpWorkerGroup;
