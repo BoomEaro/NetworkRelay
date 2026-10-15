@@ -76,6 +76,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
                         }
                     })
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.timeout)
+                    .option(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535))
                     .remoteAddress(this.socketAddressDestination)
                     .connect()
                     .addListener((ChannelFutureListener) future -> {
