@@ -59,8 +59,9 @@ dependencies {
 
     implementation(libs.console.appender)
     implementation(libs.disruptor)
-    implementation(libs.slf4j.jdk)
     implementation(libs.slf4j.api)
+    implementation(libs.log4j.slf4j2.impl)
+    implementation(libs.slf4j.jdk.platform.logging)
     implementation(libs.guava)
     implementation(libs.configurate.yaml)
 

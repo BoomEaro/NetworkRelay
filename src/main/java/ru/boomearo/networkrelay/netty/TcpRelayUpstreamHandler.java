@@ -8,8 +8,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.ReferenceCountUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
@@ -40,7 +39,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         SocketAddress remoteAddress = this.currentChannel.getRemoteAddress();
 
-        log.log(Level.INFO, "Opening Downstream for Upstream " + remoteAddress + " -> " + this.socketAddressDestination + "...");
+        log.info("Opening Downstream for Upstream {} -> {}...", remoteAddress, this.socketAddressDestination);
 
         new Bootstrap()
                 .group(ctx.channel().eventLoop())
@@ -103,7 +102,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         // Release possible queued packets
         this.tcpRelayDownstreamHandler.handleQueuedPackets(ReferenceCountUtil::release);
 
-        log.log(Level.INFO, "Closed Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination);
+        log.info("Closed Upstream {} -> {}", this.currentChannel.getRemoteAddress(), this.socketAddressDestination);
     }
 
     @Override
@@ -119,7 +118,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
         this.currentChannel.close();
 
-        log.log(Level.ERROR, "Exception on Upstream " + this.currentChannel.getRemoteAddress() + " -> " + this.socketAddressDestination, cause);
+        log.error("Exception on Upstream {} -> {}", this.currentChannel.getRemoteAddress(), this.socketAddressDestination, cause);
     }
 
 }

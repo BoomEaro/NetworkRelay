@@ -6,8 +6,7 @@ import io.netty.channel.socket.DatagramPacket;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
@@ -18,7 +17,7 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
-@Log4j2
+@Slf4j
 public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
@@ -39,7 +38,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
 
         handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
 
-        log.log(Level.INFO, "Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.socketAddressSource);
+        log.info("Opened Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.socketAddressSource);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
 
         this.udpRelayUpstreamHandler.getDownstreamHandlers().remove(this.socketAddressSource);
 
-        log.log(Level.INFO, "Closed Downstream " + (this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "") + " <- " + this.socketAddressSource);
+        log.info("Closed Downstream {} <- {}", this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "", this.socketAddressSource);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
             this.currentChannel.close();
         }
 
-        log.log(Level.ERROR, "Exception on Downstream handler " + (this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "") + " <- " + this.socketAddressSource, cause);
+        log.error("Exception on Downstream handler {} <- {}", this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "", this.socketAddressSource, cause);
     }
 
     public void writePacket(@NonNull DatagramPacket msg) {

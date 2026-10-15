@@ -5,8 +5,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -15,7 +14,7 @@ import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Getter
-@Log4j2
+@Slf4j
 public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     public static final LongAdder OPENED_CONNECTIONS = new LongAdder();
@@ -34,7 +33,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
         handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
 
-        log.log(Level.INFO, "Opened Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.info("Opened Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -46,7 +45,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         // Close upstream now
         this.upstreamChannel.close();
 
-        log.log(Level.INFO, "Closed Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress());
+        log.info("Closed Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.upstreamChannel.getRemoteAddress());
     }
 
     @Override
@@ -61,7 +60,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
         }
 
         this.currentChannel.close();
-        log.log(Level.ERROR, "Exception on Downstream " + this.currentChannel.getRemoteAddress() + " <- " + this.upstreamChannel.getRemoteAddress(), cause);
+        log.error("Exception on Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.upstreamChannel.getRemoteAddress(), cause);
     }
 
     public void writePacket(@NonNull Object msg) {

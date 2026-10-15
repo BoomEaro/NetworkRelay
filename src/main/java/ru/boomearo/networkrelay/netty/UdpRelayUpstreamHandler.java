@@ -9,8 +9,7 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetAddress;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Getter
-@Log4j2
+@Slf4j
 public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private final InetSocketAddress socketAddressDestination;
@@ -82,7 +81,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
                     .addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
                             future.channel().close();
-                            log.log(Level.ERROR, "Failed to open Downstream " + this.socketAddressDestination, future.cause());
+                            log.error("Failed to open Downstream {}", this.socketAddressDestination, future.cause());
                         }
                     });
             this.downstreamHandlers.put(senderAddress, newUdpRelayDownstreamHandler);
@@ -95,7 +94,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.log(Level.ERROR, "Exception on Upstream handler", cause);
+        log.error("Exception on Upstream handler", cause);
     }
 
 }

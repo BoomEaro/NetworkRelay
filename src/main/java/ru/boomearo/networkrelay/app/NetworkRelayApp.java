@@ -15,7 +15,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,10 +38,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
 
 @Getter
-@Log4j2
+@Slf4j
 public class NetworkRelayApp {
 
     private final List<Channel> channels = new ArrayList<>();
@@ -56,16 +55,6 @@ public class NetworkRelayApp {
         Logger redirect = LogManager.getRootLogger();
         System.setOut(IoBuilder.forLogger(redirect).setLevel(Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(redirect).setLevel(Level.ERROR).buildPrintStream());
-
-        java.util.logging.Logger root = java.util.logging.Logger.getLogger("");
-        root.setUseParentHandlers(false);
-
-        for (Handler handler : root.getHandlers()) {
-            root.removeHandler(handler);
-        }
-
-        root.setLevel(java.util.logging.Level.ALL);
-        root.addHandler(new Log4JLogHandler());
     }
 
     public void load() {
@@ -77,9 +66,9 @@ public class NetworkRelayApp {
         boolean epoll = false;
         if (Epoll.isAvailable()) {
             epoll = true;
-            log.log(Level.INFO, "Epoll is working, utilising it!");
+            log.info("Epoll is working, utilizing it!");
         } else {
-            log.log(Level.WARN, "Epoll is not working, falling back to NIO");
+            log.info("Epoll is not working, falling back to NIO");
         }
 
         ChannelFactory<? extends Channel> tcpChannelFactory = epoll ? EpollSocketChannel::new : NioSocketChannel::new;
@@ -115,7 +104,7 @@ public class NetworkRelayApp {
                             if (remoteAddress instanceof InetSocketAddress inetSocketAddress) {
                                 if (!whitelist.isEmpty()) {
                                     if (!whitelist.contains(inetSocketAddress.getAddress())) {
-                                        log.log(Level.WARN, "Closed blacklisted address " + remoteAddress);
+                                        log.warn("Closed blacklisted address {}", remoteAddress);
                                         ch.close();
                                         return;
                                     }
@@ -141,13 +130,13 @@ public class NetworkRelayApp {
                     .bind()
                     .addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
-                            log.log(Level.ERROR, "TCP: Could not bind to host " + sourceAddress, future.cause());
+                            log.error("TCP: Could not bind to host {}", sourceAddress, future.cause());
                             return;
                         }
 
                         this.channels.add(future.channel());
 
-                        log.log(Level.INFO, "TCP: Listening on " + sourceAddress + "...");
+                        log.info("TCP: Listening on {}...", sourceAddress);
                     });
         }
 
@@ -179,13 +168,13 @@ public class NetworkRelayApp {
                     .bind()
                     .addListener((ChannelFutureListener) future -> {
                         if (!future.isSuccess()) {
-                            log.log(Level.ERROR, "UDP: Could not bind to host " + sourceAddress, future.cause());
+                            log.error("UDP: Could not bind to host {}", sourceAddress, future.cause());
                             return;
                         }
 
                         this.channels.add(future.channel());
 
-                        log.log(Level.INFO, "UDP: Listening on " + sourceAddress + "...");
+                        log.info("UDP: Listening on {}...", sourceAddress);
                     });
         }
 
@@ -197,7 +186,7 @@ public class NetworkRelayApp {
             try {
                 channel.close().syncUninterruptibly();
             } catch (Throwable t) {
-                log.log(Level.ERROR, "Failed to close channel", t);
+                log.error("Failed to close channel", t);
             }
         }
         this.channels.clear();

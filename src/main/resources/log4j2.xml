@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <TerminalConsole name="Console">
             <PatternLayout pattern="%highlightError{[%d{HH:mm:ss} %level] [%logger]: %msg%n%xEx}"/>
-        </Console>
+        </TerminalConsole>
         <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="false">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n%xEx"/>
             <Policies>
