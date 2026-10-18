@@ -18,7 +18,7 @@ public class StatisticsDownstreamHandler extends ChannelDuplexHandler {
         if (msg instanceof ByteBuf byteBuf) {
             TOTAL_READ.add(byteBuf.readableBytes());
         } else if (msg instanceof ByteBufHolder byteBufHolder) {
-            TOTAL_WRITE.add(byteBufHolder.content().readableBytes());
+            TOTAL_READ.add(byteBufHolder.content().readableBytes());
         }
 
         super.channelRead(ctx, msg);
