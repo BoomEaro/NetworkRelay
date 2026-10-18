@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
+    private static final int MAX_SESSIONS = 4096;
+
     private final InetSocketAddress socketAddressDestination;
     private final ChannelFactory<? extends DatagramChannel> channelFactory;
     private final int timeout;
@@ -59,6 +61,10 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
 
         UdpRelayDownstreamHandler downstreamHandler = this.downstreamHandlers.get(senderAddress);
         if (downstreamHandler == null) {
+            if (this.downstreamHandlers.size() >= MAX_SESSIONS) {
+                return;
+            }
+
             UdpRelayDownstreamHandler newUdpRelayDownstreamHandler = new UdpRelayDownstreamHandler(this, senderAddress);
 
             new Bootstrap()
