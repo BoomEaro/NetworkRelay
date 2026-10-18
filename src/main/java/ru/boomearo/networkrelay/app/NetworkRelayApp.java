@@ -166,7 +166,6 @@ public class NetworkRelayApp {
                             ));
                         }
                     })
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
                     .option(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(65535))
                     .localAddress(sourceAddress)
                     .bind()

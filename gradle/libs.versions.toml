@@ -27,7 +27,6 @@ jline-terminal-jni = { module = "org.jline:jline-terminal-jni", version.ref = "j
 
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
 netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
-netty-transport-native-io_uring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty"}
 netty-codec-haproxy = { module = "io.netty:netty-codec-haproxy", version.ref = "netty" }
 
 logj4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }

@@ -56,6 +56,7 @@ public class CommandCpu extends CommandNodeApp {
         sender.sendMessage(SEPARATOR);
     }
 
+    @NonNull
     private static String getProcessorUsage(boolean system) {
         String usage;
         double cpuUsage;
@@ -69,26 +70,15 @@ public class CommandCpu extends CommandNodeApp {
         if (cpuUsage < 0) {
             usage = "Not available";
         } else {
-            usage = getCpuFormat(cpuUsage, new DecimalFormat("#.#"));
+            usage = getCpuFormat(cpuUsage);
         }
 
         return usage;
     }
 
-    private static String getCpuFormat(double cpu, DecimalFormat df) {
-        if (cpu <= 15) {
-            return df.format(cpu) + "%";
-        }
-        if (cpu <= 45) {
-            return df.format(cpu) + "%";
-        }
-        if (cpu <= 75) {
-            return df.format(cpu) + "%";
-        }
-        if (cpu <= 100) {
-            return df.format(cpu) + "%";
-        }
-        return df.format(cpu) + "%";
+    @NonNull
+    private static String getCpuFormat(double cpu) {
+        return new DecimalFormat("#.#").format(cpu) + "%";
     }
 
 }
