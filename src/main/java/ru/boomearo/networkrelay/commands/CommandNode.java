@@ -1,7 +1,5 @@
 package ru.boomearo.networkrelay.commands;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
 import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,8 +13,8 @@ public abstract class CommandNode<T, D> {
     protected final String name;
     protected final List<String> aliases;
 
-    protected final Map<String, CommandNode<T, D>> nodes = new Object2ObjectLinkedOpenHashMap<>();
-    protected final Map<String, CommandNode<T, D>> withAliasesNodes = new Object2ObjectLinkedOpenHashMap<>();
+    protected final Map<String, CommandNode<T, D>> nodes = new LinkedHashMap<>();
+    protected final Map<String, CommandNode<T, D>> withAliasesNodes = new LinkedHashMap<>();
 
     public CommandNode(@Nullable CommandNode<T, D> rootNode, @NonNull String name) {
         this(rootNode, name, Collections.emptyList());
@@ -125,7 +123,7 @@ public abstract class CommandNode<T, D> {
         if (args.length != 1) {
             return Collections.emptyList();
         }
-        Set<String> matches = new ObjectOpenHashSet<>();
+        Set<String> matches = new HashSet<>();
         String search = args[0].toLowerCase();
         for (Map.Entry<String, CommandNode<T, D>> entry : this.withAliasesNodes.entrySet()) {
             if (entry.getValue().hasPermission(sender)) {

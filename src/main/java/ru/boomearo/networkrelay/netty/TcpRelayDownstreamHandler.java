@@ -6,10 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -19,8 +16,6 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
     private final ChannelWrapper upstreamChannel;
 
-    private final Queue<Object> packetQueue = new LinkedList<>();
-
     private ChannelWrapper currentChannel;
 
     @Override
@@ -29,7 +24,7 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
 
         this.currentChannel = new ChannelWrapper(ctx.channel());
 
-        handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
+        this.upstreamChannel.setAutoRead(true);
 
         log.info("Opened Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.upstreamChannel.getRemoteAddress());
     }
@@ -52,6 +47,12 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+        this.upstreamChannel.setAutoRead(ctx.channel().isWritable());
+        super.channelWritabilityChanged(ctx);
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (!this.currentChannel.isActive()) {
             return;
@@ -62,18 +63,6 @@ public class TcpRelayDownstreamHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void writePacket(@NonNull Object msg) {
-        if (this.currentChannel == null) {
-            this.packetQueue.add(msg);
-            return;
-        }
-
         this.currentChannel.writeAndFlushVoidPromise(msg);
-    }
-
-    public void handleQueuedPackets(@NonNull Consumer<Object> consumer) {
-        Object packet;
-        while ((packet = this.packetQueue.poll()) != null) {
-            consumer.accept(packet);
-        }
     }
 }

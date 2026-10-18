@@ -6,7 +6,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +28,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
     private final int timeout;
     private final Set<InetAddress> whitelist;
 
-    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new Object2ObjectOpenHashMap<>();
+    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new HashMap<>();
 
     @Nullable
     private ChannelWrapper currentChannel;

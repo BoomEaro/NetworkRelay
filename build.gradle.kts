@@ -62,14 +62,7 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.log4j.slf4j2.impl)
     implementation(libs.slf4j.jdk.platform.logging)
-    implementation(libs.guava)
     implementation(libs.configurate.yaml)
-
-    implementation(libs.dsiutils) {
-        exclude(group = "ch.qos.logback")
-        exclude(group = "it.unimi.di")
-        exclude(group = "org.slf4j")
-    }
 
     implementation(libs.bundles.log4j)
     implementation(libs.bundles.jline.terminal)

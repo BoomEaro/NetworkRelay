@@ -35,6 +35,10 @@ public class ChannelWrapper {
         this.channel.writeAndFlush(packet, this.channel.voidPromise());
     }
 
+    public void setAutoRead(boolean autoRead) {
+        this.channel.config().setAutoRead(autoRead);
+    }
+
     public void close() {
         if (this.closed) {
             return;

@@ -1,9 +1,7 @@
 [versions]
 netty = "4.2.19.Final"
 lombok = "1.18.46"
-guava = "33.6.0-jre"
 log4j = "2.26.1"
-dsiutils = "2.7.4"
 slf4j = "2.0.20"
 jline-terminal = "4.3.1"
 disruptor = "4.0.0"
@@ -17,7 +15,6 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 [libraries]
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 
-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate-yaml" }
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
@@ -25,14 +22,12 @@ slf4j-jdk-platform-logging = { module = "org.slf4j:slf4j-jdk-platform-logging", 
 
 console-appender = { module = "net.minecrell:terminalconsoleappender", version.ref = "console-appender" }
 
-dsiutils = { module = "it.unimi.dsi:dsiutils", version.ref = "dsiutils" }
-
 jline-reader = { module = "org.jline:jline-reader", version.ref = "jline-terminal" }
 jline-terminal-jni = { module = "org.jline:jline-terminal-jni", version.ref = "jline-terminal" }
 
 netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
 netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
-netty-transport-native-io_uring= { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty"}
+netty-transport-native-io_uring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty"}
 netty-codec-haproxy = { module = "io.netty:netty-codec-haproxy", version.ref = "netty" }
 
 logj4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }

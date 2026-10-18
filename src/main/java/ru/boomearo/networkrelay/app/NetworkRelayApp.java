@@ -1,6 +1,5 @@
 package ru.boomearo.networkrelay.app;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -14,6 +13,7 @@ import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ResourceLeakDetector;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.Level;
@@ -76,9 +76,9 @@ public class NetworkRelayApp {
 
         ChannelFactory<? extends DatagramChannel> udpChannelFactory = epoll ? EpollDatagramChannel::new : NioDatagramChannel::new;
 
-        this.tcpBossGroup = newEventLoopGroup(epoll, 0, new ThreadFactoryBuilder().setNameFormat("Netty TCP Boss IO Thread #%1$d").build());
-        this.tcpWorkerGroup = newEventLoopGroup(epoll, 0, new ThreadFactoryBuilder().setNameFormat("Netty TCP Worker IO Thread #%1$d").build());
-        this.udpWorkerGroup = newEventLoopGroup(epoll, 1, new ThreadFactoryBuilder().setNameFormat("Netty UDP Worker IO Thread #%1$d").build());
+        this.tcpBossGroup = newEventLoopGroup(epoll, 0, new DefaultThreadFactory("Netty TCP Boss IO Thread"));
+        this.tcpWorkerGroup = newEventLoopGroup(epoll, 0, new DefaultThreadFactory("Netty TCP Worker IO Thread"));
+        this.udpWorkerGroup = newEventLoopGroup(epoll, 1, new DefaultThreadFactory("Netty UDP Worker IO Thread"));
 
         this.configurationProvider = new ConfigurationProvider<>(
                 Configuration.class,
@@ -129,7 +129,7 @@ public class NetworkRelayApp {
                             ));
                         }
                     })
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
+                    .childOption(ChannelOption.AUTO_READ, false)
                     .localAddress(sourceAddress)
                     .bind()
                     .addListener((ChannelFutureListener) future -> {

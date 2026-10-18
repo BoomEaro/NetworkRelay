@@ -4,15 +4,11 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.handler.codec.haproxy.*;
 import io.netty.handler.flush.FlushConsolidationHandler;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.ReferenceCountUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 
 @RequiredArgsConstructor
@@ -78,12 +74,6 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
                         ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
                         ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
-                        ch.pipeline().addLast("idle", new IdleStateHandler(0, 0, timeout, TimeUnit.MILLISECONDS) {
-                            @Override
-                            protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {
-                                ctx.close();
-                            }
-                        });
                         ch.pipeline().addLast("downstream", tcpRelayDownstreamHandler);
 
                     }
@@ -108,15 +98,18 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
         // Close downstream now
         this.downstreamChannel.close();
 
-        // Release possible queued packets
-        this.tcpRelayDownstreamHandler.handleQueuedPackets(ReferenceCountUtil::release);
-
         log.info("Closed Upstream {} -> {}", this.currentChannel.getRemoteAddress(), this.socketAddressDestination);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         this.tcpRelayDownstreamHandler.writePacket(msg);
+    }
+
+    @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+        this.downstreamChannel.config().setAutoRead(ctx.channel().isWritable());
+        super.channelWritabilityChanged(ctx);
     }
 
     @Override
