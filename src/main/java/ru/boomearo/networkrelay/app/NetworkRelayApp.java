@@ -9,7 +9,6 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ResourceLeakDetector;
@@ -115,7 +114,6 @@ public class NetworkRelayApp {
                             SimpleChannelInitializer.INSTANCE.initChannel(ch);
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
-                            ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                             ch.pipeline().addLast("idle", new IdleStateHandler(0, 0, timeout, TimeUnit.MILLISECONDS) {
                                 @Override
                                 protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {

@@ -3,7 +3,6 @@ package ru.boomearo.networkrelay.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.handler.codec.haproxy.*;
-import io.netty.handler.flush.FlushConsolidationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,7 +75,6 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                         }
 
                         ch.pipeline().addLast("stats", new StatisticsDownstreamHandler());
-                        ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
                         ch.pipeline().addLast("downstream", tcpRelayDownstreamHandler);
 
                     }
