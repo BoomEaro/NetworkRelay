@@ -7,6 +7,7 @@ import io.netty.handler.flush.FlushConsolidationHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.LongAdder;
@@ -49,7 +50,9 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
                         if (proxyProtocol &&
                                 remoteAddress instanceof InetSocketAddress sourceAddress &&
-                                socketAddressDestination instanceof InetSocketAddress destinationAddress) {
+                                channel.localAddress() instanceof InetSocketAddress destinationAddress) {
+                            HAProxyProxiedProtocol proto = sourceAddress.getAddress() instanceof Inet6Address ? HAProxyProxiedProtocol.TCP6 : HAProxyProxiedProtocol.TCP4;
+
                             ch.pipeline().addLast(HAProxyMessageEncoder.INSTANCE);
 
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
@@ -58,7 +61,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                                     HAProxyMessage proxyMessage = new HAProxyMessage(
                                             HAProxyProtocolVersion.V2,
                                             HAProxyCommand.PROXY,
-                                            HAProxyProxiedProtocol.TCP4,
+                                            proto,
                                             sourceAddress.getHostString(),
                                             destinationAddress.getHostString(),
                                             sourceAddress.getPort(),

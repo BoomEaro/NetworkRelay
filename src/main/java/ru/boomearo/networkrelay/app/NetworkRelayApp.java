@@ -15,6 +15,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -212,7 +213,8 @@ public class NetworkRelayApp {
         System.exit(0);
     }
 
-    private static EventLoopGroup newEventLoopGroup(boolean epoll, int threads, ThreadFactory threadFactory) {
+    @NonNull
+    private static EventLoopGroup newEventLoopGroup(boolean epoll, int threads, @NonNull ThreadFactory threadFactory) {
         return new MultiThreadIoEventLoopGroup(threads, threadFactory, epoll ? EpollIoHandler.newFactory() : NioIoHandler.newFactory());
     }
 

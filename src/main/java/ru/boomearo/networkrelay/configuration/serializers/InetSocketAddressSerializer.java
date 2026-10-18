@@ -6,6 +6,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import ru.boomearo.networkrelay.configuration.ConfigurateSerializer;
 
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class InetSocketAddressSerializer extends ConfigurateSerializer<InetSocketAddress> {
@@ -16,14 +17,11 @@ public class InetSocketAddressSerializer extends ConfigurateSerializer<InetSocke
 
     @Override
     public InetSocketAddress deserialize(@NotNull Type type, ConfigurationNode node) throws SerializationException {
-        String value = node.getString("");
         InetSocketAddress inetSocketAddress;
         try {
-            String[] args = value.split(":");
-            String hostName = args[0];
-            int port = Integer.parseInt(args[1]);
-
-            inetSocketAddress = new InetSocketAddress(hostName, port);
+            InetAddress address = node.node("address").get(InetAddress.class, InetAddress.getByName("127.0.0.1"));
+            int port = node.node("port").getInt(1);
+            inetSocketAddress = new InetSocketAddress(address, port);
         } catch (Exception e) {
             throw new SerializationException(e);
         }
@@ -36,6 +34,7 @@ public class InetSocketAddressSerializer extends ConfigurateSerializer<InetSocke
             node.raw(null);
             return;
         }
-        node.set(String.class, obj.getHostString() + ":" + obj.getPort());
+        node.node("address").set(InetAddress.class, obj.getAddress());
+        node.node("port").set(Integer.class, obj.getPort());
     }
 }
