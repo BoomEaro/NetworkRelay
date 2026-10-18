@@ -11,8 +11,8 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.flush.FlushConsolidationHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -115,8 +115,12 @@ public class NetworkRelayApp {
 
                             ch.pipeline().addLast("stats", new StatisticsUpstreamHandler());
                             ch.pipeline().addLast("fch", new FlushConsolidationHandler(20));
-                            ch.pipeline().addLast("read-timeout", new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
-                            ch.pipeline().addLast("write-timeout", new WriteTimeoutHandler(timeout, TimeUnit.MILLISECONDS));
+                            ch.pipeline().addLast("idle", new IdleStateHandler(0, 0, timeout, TimeUnit.MILLISECONDS) {
+                                @Override
+                                protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) {
+                                    ctx.close();
+                                }
+                            });
                             ch.pipeline().addLast("upstream", new TcpRelayUpstreamHandler(
                                     tcpChannelFactory,
                                     destinationAddress,
