@@ -34,11 +34,12 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         OPENED_CONNECTIONS.increment();
 
-        this.currentChannel = new ChannelWrapper(ctx.channel());
+        ChannelWrapper currentChannel = new ChannelWrapper(ctx.channel());
+        this.currentChannel = currentChannel;
 
-        handleQueuedPackets((msg) -> this.currentChannel.writeAndFlushVoidPromise(msg));
+        handleQueuedPackets(currentChannel::writeAndFlushVoidPromise);
 
-        log.info("Opened Downstream {} <- {}", this.currentChannel.getRemoteAddress(), this.socketAddressSource);
+        log.info("Opened Downstream {} <- {}", currentChannel.getRemoteAddress(), this.socketAddressSource);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class UdpRelayDownstreamHandler extends SimpleChannelInboundHandler<Datag
             this.currentChannel.setClosed(true);
         }
 
-        this.udpRelayUpstreamHandler.getDownstreamHandlers().remove(this.socketAddressSource);
+        this.udpRelayUpstreamHandler.removeSession(this.socketAddressSource);
 
         log.info("Closed Downstream {} <- {}", this.currentChannel != null ? this.currentChannel.getRemoteAddress() : "", this.socketAddressSource);
     }

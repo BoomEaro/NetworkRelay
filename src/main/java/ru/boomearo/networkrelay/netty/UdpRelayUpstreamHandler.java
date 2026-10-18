@@ -6,7 +6,9 @@ import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.ReferenceCountUtil;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-@Getter
 @Slf4j
 public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
@@ -30,9 +31,10 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
     private final int timeout;
     private final Set<InetAddress> whitelist;
 
-    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> downstreamHandlers = new HashMap<>();
+    private final Map<InetSocketAddress, UdpRelayDownstreamHandler> sessions = new HashMap<>();
 
     @Nullable
+    @Getter
     private ChannelWrapper currentChannel;
 
     @Override
@@ -59,9 +61,9 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
             }
         }
 
-        UdpRelayDownstreamHandler downstreamHandler = this.downstreamHandlers.get(senderAddress);
+        UdpRelayDownstreamHandler downstreamHandler = this.sessions.get(senderAddress);
         if (downstreamHandler == null) {
-            if (this.downstreamHandlers.size() >= MAX_SESSIONS) {
+            if (this.sessions.size() >= MAX_SESSIONS) {
                 return;
             }
 
@@ -90,12 +92,18 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
                     .remoteAddress(this.socketAddressDestination)
                     .connect()
                     .addListener((ChannelFutureListener) future -> {
-                        if (!future.isSuccess()) {
-                            future.channel().close();
-                            log.error("Failed to open Downstream {}", this.socketAddressDestination, future.cause());
+                        if (future.isSuccess()) {
+                            return;
                         }
+
+                        future.channel().close();
+
+                        removeSession(senderAddress);
+                        newUdpRelayDownstreamHandler.handleQueuedPackets(ReferenceCountUtil::release);
+
+                        log.error("Failed to open Downstream {}", this.socketAddressDestination, future.cause());
                     });
-            this.downstreamHandlers.put(senderAddress, newUdpRelayDownstreamHandler);
+            this.sessions.put(senderAddress, newUdpRelayDownstreamHandler);
             downstreamHandler = newUdpRelayDownstreamHandler;
         }
 
@@ -108,4 +116,7 @@ public class UdpRelayUpstreamHandler extends SimpleChannelInboundHandler<Datagra
         log.error("Exception on Upstream handler", cause);
     }
 
+    public void removeSession(@NonNull InetSocketAddress address) {
+        this.sessions.remove(address);
+    }
 }
