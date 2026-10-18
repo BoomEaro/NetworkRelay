@@ -1,6 +1,8 @@
 package ru.boomearo.networkrelay.netty;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.ReferenceCountUtil;
 import lombok.Data;
 import lombok.NonNull;
@@ -45,6 +47,7 @@ public class ChannelWrapper {
         }
         this.closed = true;
 
-        this.channel.close();
+        this.channel.writeAndFlush(Unpooled.EMPTY_BUFFER)
+                .addListener(ChannelFutureListener.CLOSE);
     }
 }

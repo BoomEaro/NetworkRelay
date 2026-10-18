@@ -25,7 +25,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     private ChannelWrapper currentChannel;
     private TcpRelayDownstreamHandler tcpRelayDownstreamHandler;
-    private Channel downstreamChannel;
+    private ChannelWrapper downstreamChannel;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -89,7 +89,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
                         this.currentChannel.close();
                     }
                 });
-        this.downstreamChannel = channelFuture.channel();
+        this.downstreamChannel = new ChannelWrapper(channelFuture.channel());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class TcpRelayUpstreamHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-        this.downstreamChannel.config().setAutoRead(ctx.channel().isWritable());
+        this.downstreamChannel.setAutoRead(ctx.channel().isWritable());
         super.channelWritabilityChanged(ctx);
     }
 
